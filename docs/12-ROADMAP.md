@@ -2,8 +2,8 @@
 
 Cada etapa exige documentação atualizada, testes proporcionais e critérios de aceite explícitos.
 
-0. **Fundação:** documentos, decisões, regras e Git.
-1. **Bootstrap:** Next.js/TypeScript/Tailwind, lint/format/test, CI, env example e estrutura de módulos.
+0. **Fundação — concluída:** documentos, decisões, regras e Git.
+1. **Bootstrap — concluída:** Next.js/TypeScript/Tailwind, lint/test, env example e estrutura de módulos. CI será adicionada quando houver repositório remoto autorizado.
 2. **Banco:** Supabase local/projeto autorizado, schemas RAW/NORMALIZED/ANALYTICS, migrations e políticas-base.
 3. **Auth:** login, sessão, autorização mínima e RLS testada.
 4. **Omie Core:** cliente server-only, throttling, retry, logs, RAW, jobs e fixtures.
@@ -21,4 +21,3 @@ Cada etapa exige documentação atualizada, testes proporcionais e critérios de
 16. **Produção:** segurança, backup/restore, observabilidade, runbooks e deploy autorizado.
 
 Spikes de `13-OPEN-QUESTIONS.md` devem ocorrer antes da etapa que depende deles, não todos antecipadamente.
-

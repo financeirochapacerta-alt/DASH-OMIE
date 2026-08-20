@@ -2,7 +2,7 @@
 
 ## Missão e estado
 
-Construir uma aplicação gerencial moderna, segura e responsiva para a Chapa Certa. A Omie permanece operacional; PostgreSQL/Supabase será a fonte analítica; backend integra e aplica regras; frontend apresenta resultados tratados. Estado: **Etapa 0**. Próxima: bootstrap.
+Construir uma aplicação gerencial moderna, segura e responsiva para a Chapa Certa. A Omie permanece operacional; PostgreSQL/Supabase será a fonte analítica; backend integra e aplica regras; frontend apresenta resultados tratados. Estado: **Etapa 1 concluída**. Próxima: banco/migrations.
 
 ## Arquitetura em uma linha
 
@@ -33,4 +33,3 @@ Custo inicial zero quando razoável; simplicidade; segurança; confiabilidade nu
 - Indicadores: `07-INDICATORS.md`; sync: `08-SYNC-STRATEGY.md`; segurança: `09-SECURITY.md`
 - Testes: `10-TESTING.md`; execução: `11-CODEX-RULES.md`; roadmap: `12-ROADMAP.md`
 - Incertezas: `13-OPEN-QUESTIONS.md`; decisões: `DECISIONS.md`
-

@@ -3,6 +3,7 @@ node_modules/
 .next/
 out/
 coverage/
+*.tsbuildinfo
 
 # Environment and secrets
 .env
@@ -15,4 +16,3 @@ coverage/
 Thumbs.db
 .vercel/
 .supabase/
-

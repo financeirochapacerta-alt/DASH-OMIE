@@ -29,3 +29,8 @@
 - Status: aceito — 2026-08-20
 - Decisão: sinais, cancelamento, DRE e caixa são calculados no backend/banco e protegidos por testes; originais preservados.
 
+## ADR-006 — Supabase SSR e validação de ambiente
+
+- Status: aceito — 2026-08-20
+- Decisão: usar `@supabase/ssr` atual com clientes browser/server separados; o cliente comum usa chave anon, e service role/Omie permanecem em módulo protegido por `server-only`. Zod centraliza contratos de ambiente.
+- Motivo: impedir importação acidental de secrets no browser e validar configuração na fronteira, sem conectar projeto real.
