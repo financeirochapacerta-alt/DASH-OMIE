@@ -12,6 +12,10 @@ Supabase Auth; autorização server-side e RLS por menor privilégio; perfis pos
 
 Validar entrada e webhook, limitar taxa, proteger contra replay, registrar auditoria de ações sensíveis e redigir logs. Rotacionar secrets em incidente. Dependency/secret scanning e headers seguros entram no bootstrap/produção conforme roadmap.
 
-## Estado do banco após a Etapa 2
+## Auth e autorização
 
-RLS está habilitado em todas as tabelas RAW e normalizadas, sem policy permissiva. `anon` e `authenticated` não recebem acesso até o modelo de autorização da Etapa 3. Os schemas `raw` e `analytics` não estão expostos pela Data API; grants públicos foram revogados. Views analytics usam `security_invoker` como defesa adicional. RAW permanece destinado exclusivamente ao backend/service role.
+Supabase Auth usa login interno por e-mail/senha, sem cadastro público. O trigger de `auth.users` cria `public.profiles` como `VIEWER` inativo; nenhuma metadata controlada pelo usuário define role. A ativação e promoção exigem ADMIN, e não há criação automática de ADMIN.
+
+RLS protege todas as tabelas normalizadas. Funções de policy consultam `auth.uid()` e o profile ativo em schema privado, com `search_path` vazio e grants mínimos. Entidades sincronizadas são somente leitura para perfis autorizados; apenas configurações possuem escrita ADMIN. RAW não tem grants para usuários. Analytics está exposto à Data API apenas por views `security_invoker`, herdando o RLS subjacente. A matriz detalhada está em `14-AUTHORIZATION-MATRIX.md`.
+
+No app, `proxy.ts` renova cookies e faz redirecionamento otimista. Páginas protegidas validam claims no servidor e consultam o profile canônico; o frontend não decide autorização. Service role permanece server-only e não é utilizada no fluxo de sessão.

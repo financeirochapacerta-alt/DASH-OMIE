@@ -38,7 +38,7 @@
 ## ADR-007 — Schemas, chaves e exposição do banco
 
 - Status: aceito — 2026-08-20
-- Decisão: separar `raw`, `public` normalizado e `analytics`; usar UUID em ingestão/eventos e `bigint identity` internamente nas entidades normalizadas. `raw`/`analytics` ficam fora dos schemas expostos; tabelas começam com RLS e sem policies até Auth.
+- Decisão: separar `raw`, `public` normalizado e `analytics`; usar UUID em ingestão/eventos e `bigint identity` internamente nas entidades normalizadas. `raw` fica fora dos schemas expostos; `analytics` é exposto somente por views `security_invoker` após a Etapa 3. Tabelas usam RLS.
 - Motivo: rastreabilidade, índices menores no modelo relacional e menor superfície de acesso.
 
 ## ADR-008 — Sinal financeiro como dado derivado
@@ -46,3 +46,15 @@
 - Status: aceito — 2026-08-20
 - Decisão: `signed_value` é coluna gerada a partir de `original_value`: positiva em recebíveis e negativa em pagáveis; valores originais não negativos são protegidos por constraint.
 - Motivo: tornar a regra invariável no banco e independente do frontend/importador.
+
+## ADR-009 — Roles canônicas e provisionamento fechado
+
+- Status: aceito — 2026-08-20
+- Decisão: roles usam enum PostgreSQL; `public.profiles` é a fonte canônica, nunca metadata do usuário. Novo usuário recebe `VIEWER` inativo e cadastro público fica desabilitado. O primeiro ADMIN exige provisionamento administrativo autorizado.
+- Motivo: negar acesso por padrão e impedir escalada por dados manipuláveis no client.
+
+## ADR-010 — Autorização em profundidade
+
+- Status: aceito — 2026-08-20
+- Decisão: RLS aplica a matriz no banco; server components validam claims e profile; `proxy.ts` limita-se a refresh/redirecionamento otimista. Helpers `security definer` ficam em schema privado, sem parâmetros de identidade e com `search_path` vazio.
+- Motivo: evitar que UI, cookies não validados ou recursão de policies se tornem fronteira de segurança.
