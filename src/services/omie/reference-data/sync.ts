@@ -35,7 +35,7 @@ type SyncOptions<TDto, TRecord extends { omieId: string }> = {
   entityType: ReferenceEntity;
   fetch: () => Promise<{ records: readonly TDto[] }>;
   identify: (dto: TDto) => string | null;
-  normalize: (dto: TDto) => TRecord;
+  normalize: (dto: TDto) => TRecord | Promise<TRecord>;
   rawRepository: RawRecordRepository;
   normalizedRepository: NormalizedRepository<TRecord>;
   errorRepository?: SyncErrorRepository;
@@ -82,7 +82,7 @@ export async function syncReferenceEntity<TDto, TRecord extends { omieId: string
         fetchedAt: now().toISOString(),
         ...(syncRunId ? { syncRunId } : {}),
       });
-      const normalized = normalize(dto);
+      const normalized = await normalize(dto);
       omieId = normalized.omieId;
       const outcome = await normalizedRepository.upsert(normalized, payloadHash);
       summary[outcome] += 1;

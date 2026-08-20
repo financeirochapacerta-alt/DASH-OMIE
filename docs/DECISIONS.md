@@ -70,3 +70,9 @@
 - Status: aceito — 2026-08-20
 - Decisão: adapters de persistência recebem somente campos sincronizáveis; configurações gerenciais locais são omitidas do update. `bank_accounts.selected_for_cash` é o primeiro campo protegido por esse padrão. Payload RAW recebe hash SHA-256 sobre JSON canônico para detecção de igualdade.
 - Motivo: permitir atualização operacional idempotente sem apagar decisões locais e evitar updates desnecessários.
+
+## ADR-013 — Sinal e status financeiro em profundidade
+
+- Status: aceito — 2026-08-20
+- Decisão: preservar valor/status originais; validar o sinal no normalizador e gerá-lo novamente no PostgreSQL. Classificação de liquidação/cancelamento é central, case-insensitive e fail-safe. Analytics exclui cancelados e define aberto/vencido somente entre títulos não liquidados e não cancelados.
+- Motivo: impedir a regressão histórica de somar despesas como entradas e manter estados desconhecidos auditáveis sem suposições silenciosas.

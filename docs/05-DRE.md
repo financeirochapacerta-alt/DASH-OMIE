@@ -9,8 +9,8 @@
 - Cancelados não inflam DRE.
 - Classificação deve ser reproduzível, versionada e rastreável à categoria/origem.
 - Não duplicar manualmente a lógica do sistema anterior sem investigar suporte nativo atual da Omie.
+- A camada financeira fornece despesas com sinal negativo e exclui títulos cancelados; a DRE futura deve consumir essa convenção sem reinverter valores.
 
 ## Spike obrigatório
 
 Validar `codigo_dre`, `dadosDRE`, `ListarCadastroDRE` e demais estruturas atuais; comparar com export real da DRE Omie; documentar cobertura, estabilidade e lacunas. Só então decidir entre classificação nativa, mapeamento complementar ou híbrido.
-

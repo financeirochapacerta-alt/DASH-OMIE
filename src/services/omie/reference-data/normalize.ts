@@ -64,7 +64,7 @@ export function normalizeNumeric(value: unknown, defaultValue = "0"): string {
     throw new TypeError("Invalid numeric value");
   }
   const text = String(value).trim();
-  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(text)) {
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text)) {
     throw new TypeError(`Invalid numeric value: ${text}`);
   }
   if (!Number.isFinite(Number(text))) throw new TypeError(`Invalid numeric value: ${text}`);

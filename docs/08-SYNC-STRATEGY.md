@@ -20,6 +20,8 @@ O cliente base repete HTTP 429, HTTP 5xx, timeout e falhas de rede, com até sei
 
 Clientes, vendedores, categorias e contas correntes agora possuem orquestração separada em fetch, RAW, normalização e upsert por adapter. Cada execução retorna `fetched`, `inserted`, `updated`, `unchanged` e `failed`, isola erro por registro e oferece hooks para `sync_errors`, `sync_runs` e `sync_entity_state`. Não há scheduler nem conexão remota.
 
+Recebíveis e pagáveis reutilizam a mesma orquestração, mas possuem módulos e normalizadores semanticamente separados. A janela inicial considera vencimentos de 2025-01-01 até um ano após a data de execução; enquanto o filtro por vencimento não estiver confirmado no contrato, a listagem completa é filtrada na camada financeira. Registros inválidos ainda chegam ao RAW e falham isoladamente.
+
 ## Incremental e reconciliação
 
 Usar `last-modified`/cursor somente após confirmar endpoint a endpoint. Onde indisponível, usar janelas sobrepostas e upsert. Executar reconciliação periódica mais ampla para mudanças tardias, cancelamentos e lacunas. Webhooks aceleram atualização, mas não são fonte única.

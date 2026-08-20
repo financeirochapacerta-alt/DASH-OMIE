@@ -30,3 +30,7 @@ O cliente server-only usa `https://app.omie.com.br/api/v1`, encapsula o envelope
 Os módulos offline de clientes (`geral/clientes`), vendedores (`geral/vendedores`), categorias (`geral/categorias`) e contas correntes (`geral/contacorrente`) usam os respectivos métodos `Listar*` e a paginação comum. Os DTOs cobrem somente identificadores, nomes, estados e dados técnicos requeridos pelo modelo. Payloads completos continuam preservados em RAW; metadata DRE não define ainda a estrutura final da DRE.
 
 A documentação oficial consultada em 2026-08-20 confirma filtros por data para clientes e vendedores, além de hora para clientes. Esses filtros são opcionais e específicos por módulo. Categorias e contas correntes permanecem em full listing até confirmação equivalente.
+
+## Financeiro implementado
+
+Contas a receber (`financas/contareceber`, `ListarContasReceber`) e contas a pagar (`financas/contapagar`, `ListarContasPagar`) usam o Omie Core e o pipeline RAW/normalização/upsert existente. Os DTOs mínimos preservam IDs de relacionamento, datas, valor original, status, documento e parcela; relações ausentes permanecem nulas e nunca impedem a captura do título.

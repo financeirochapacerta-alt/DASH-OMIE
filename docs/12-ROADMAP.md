@@ -8,7 +8,7 @@ Cada etapa exige documentação atualizada, testes proporcionais e critérios de
 3. **Auth — concluída:** login/logout, profile inativo por padrão, matriz fail-closed, proteção server-side e policies RLS. Validação PostgreSQL real aguarda Docker.
 4. **Omie Core — concluída:** cliente server-only, timeout, retry/backoff, logs seguros e paginação genérica. RAW já existe desde a Etapa 2; jobs e contratos de entidades entram nas etapas seguintes.
 5. **Cadastros-base — concluída:** clientes, vendedores, categorias e contas correntes com RAW, normalização, hash, paginação e upsert abstrato offline. Fornecedores e persistência Supabase concreta entram quando requeridos pela etapa correspondente.
-6. **Financeiro:** receber/pagar, sinais, estados, parcelas e reconciliação.
+6. **Financeiro — concluída:** receber/pagar, RAW, normalização, sinais, estados, relações opcionais, analytics inicial e regressões. Baixas detalhadas e reconciliação real dependem dos spikes de caixa/origem.
 7. **Pedidos:** detalhes, cancelamento, etapas e ligação financeira validada.
 8. **OS:** implementar após spikes de contrato/cancelamento/vencimento.
 9. **DRE:** concluir spike Omie, classificação, views e drill-down.

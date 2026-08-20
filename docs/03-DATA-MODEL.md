@@ -26,6 +26,8 @@ Recebíveis e pagáveis derivam `signed_value` por coluna gerada no banco, imped
 
 Nos cadastros-base, a persistência sincronizada usa o identificador Omie como chave de upsert e hash SHA-256 canônico para detectar payload inalterado. Campos gerenciais locais não pertencem ao DTO sincronizado: em especial, `bank_accounts.selected_for_cash` nunca integra o conjunto de atualização da Omie e deve ser preservado em todo upsert.
 
+Recebíveis e pagáveis mantêm `original_value` não negativo e têm `signed_value` gerado pelo PostgreSQL, positivo e negativo respectivamente. O normalizador reproduz o sinal em representação decimal textual para validação e analytics offline, sem usar ponto flutuante como fonte de verdade. Chaves para cliente/fornecedor, vendedor, categoria e conta corrente são resolvidas por adapter e aceitam `NULL`.
+
 ## Auditoria
 
 Manter origem, timestamps de negócio e ingestão separados, execução de sync e transformação aplicada. Exclusão na Omie não deve ser presumida: aguarda spike.

@@ -10,7 +10,8 @@
 
 Títulos vencidos e abertos são reposicionados para hoje na projeção. O título original e seu vencimento permanecem auditáveis. Pagáveis têm sinal negativo; recebíveis, positivo. Datas reais de baixa ainda exigem validação Omie.
 
+A etapa financeira preserva `due_date`, `forecast_date`, sinal, liquidação, cancelamento e conta corrente. Ela não reposiciona `due_date`; essa transformação pertence exclusivamente à projeção futura.
+
 ## Saídas planejadas
 
 Saldo consolidado/por conta, entradas/saídas previstas, saldo diário projetado, primeira data negativa, caixa mínimo configurável e alertas. Não misturar realizado e projetado em uma série sem identificação explícita.
-

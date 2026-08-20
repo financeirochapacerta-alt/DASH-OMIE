@@ -74,7 +74,13 @@ export type BankAccountRecord = {
   accountType: string | null;
 };
 
-export type ReferenceEntity = "customers" | "sellers" | "categories" | "bank_accounts";
+export type ReferenceEntity =
+  | "customers"
+  | "sellers"
+  | "categories"
+  | "bank_accounts"
+  | "accounts_receivable"
+  | "accounts_payable";
 
 export type RawOmieRecord = {
   entityType: ReferenceEntity;
