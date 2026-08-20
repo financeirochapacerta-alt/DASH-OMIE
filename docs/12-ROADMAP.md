@@ -6,7 +6,7 @@ Cada etapa exige documentação atualizada, testes proporcionais e critérios de
 1. **Bootstrap — concluída:** Next.js/TypeScript/Tailwind, lint/test, env example e estrutura de módulos. CI será adicionada quando houver repositório remoto autorizado.
 2. **Banco — concluída:** Supabase local inicializado, schemas RAW/NORMALIZED/ANALYTICS, migrations, RLS-base e testes pgTAP preparados. Execução local do SQL aguarda runtime Docker.
 3. **Auth — concluída:** login/logout, profile inativo por padrão, matriz fail-closed, proteção server-side e policies RLS. Validação PostgreSQL real aguarda Docker.
-4. **Omie Core:** cliente server-only, throttling, retry, logs, RAW, jobs e fixtures.
+4. **Omie Core — concluída:** cliente server-only, timeout, retry/backoff, logs seguros e paginação genérica. RAW já existe desde a Etapa 2; jobs e contratos de entidades entram nas etapas seguintes.
 5. **Cadastros:** clientes, fornecedores, categorias/contas e mapeamentos configuráveis.
 6. **Financeiro:** receber/pagar, sinais, estados, parcelas e reconciliação.
 7. **Pedidos:** detalhes, cancelamento, etapas e ligação financeira validada.

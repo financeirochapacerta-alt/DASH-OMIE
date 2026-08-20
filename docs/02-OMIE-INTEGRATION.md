@@ -21,3 +21,6 @@ Registrar primeiro em inbox bruta, deduplicar e processar de modo assíncrono. D
 
 Consulte `08-SYNC-STRATEGY.md` e `13-OPEN-QUESTIONS.md`.
 
+## Cliente base implementado
+
+O cliente server-only usa `https://app.omie.com.br/api/v1`, encapsula o envelope padrão com `app_key`, `app_secret`, `call` e `param`, e aplica timeout de 30 segundos. Erros HTTP e faults funcionais são normalizados sem expor credenciais. A base permanece genérica: contratos específicos de entidades serão adicionados somente após a validação de cada endpoint.

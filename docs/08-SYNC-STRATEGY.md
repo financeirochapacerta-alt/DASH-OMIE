@@ -16,6 +16,8 @@
 
 Retry apenas para falhas transitórias; exponential backoff com jitter; respeito a 429; limites de tentativas; dead-letter/reprocessamento; correlação por execução/item. Falha de uma entidade não bloqueia as demais.
 
+O cliente base repete HTTP 429, HTTP 5xx, timeout e falhas de rede, com até seis retries, espera exponencial iniciando em 2 segundos e teto de 60 segundos. `Retry-After` é respeitado dentro desse teto. A paginação genérica usa lotes de 50 e intervalo padrão de 800 ms, ambos configuráveis. O motor de sincronização, cursores e jobs permanecem para as etapas de entidades; nenhuma estratégia incremental foi presumida.
+
 ## Incremental e reconciliação
 
 Usar `last-modified`/cursor somente após confirmar endpoint a endpoint. Onde indisponível, usar janelas sobrepostas e upsert. Executar reconciliação periódica mais ampla para mudanças tardias, cancelamentos e lacunas. Webhooks aceleram atualização, mas não são fonte única.

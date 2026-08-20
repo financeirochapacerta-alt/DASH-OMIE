@@ -26,3 +26,7 @@ Testar idempotência, paginação, retry/429, reprocessamento e reconciliação.
 Testes pgTAP em `supabase/tests` verificam schemas e invariantes de sinal/valor. Execute `npm run test:db` após iniciar a stack local com Docker. Os testes TypeScript de sinal rodam sem Docker; as colunas geradas e constraints são a proteção canônica no banco.
 
 Testes unitários da matriz cobrem ADMIN, FINANCEIRO, COMERCIAL, PRODUCAO, VIEWER, usuário inativo e role desconhecida. A validação estática deve rejeitar `using (true)`, grants anônimos, funções `security definer` sem `search_path` controlado e policies de update sem `with check`. A execução real das migrations/RLS e do pgTAP continua pendente enquanto o ambiente não possuir Docker.
+
+## Omie Core
+
+Os testes do cliente são totalmente offline: transporte e espera são injetados, e timers falsos validam timeout sem acessar a API real. A suíte cobre payload padrão, sucesso, faults funcionais, 400 sem retry, 429/5xx com retry, `Retry-After`, limite de tentativas, backoff, paginação e redação de secrets.

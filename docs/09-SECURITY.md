@@ -19,3 +19,7 @@ Supabase Auth usa login interno por e-mail/senha, sem cadastro público. O trigg
 RLS protege todas as tabelas normalizadas. Funções de policy consultam `auth.uid()` e o profile ativo em schema privado, com `search_path` vazio e grants mínimos. Entidades sincronizadas são somente leitura para perfis autorizados; apenas configurações possuem escrita ADMIN. RAW não tem grants para usuários. Analytics está exposto à Data API apenas por views `security_invoker`, herdando o RLS subjacente. A matriz detalhada está em `14-AUTHORIZATION-MATRIX.md`.
 
 No app, `proxy.ts` renova cookies e faz redirecionamento otimista. Páginas protegidas validam claims no servidor e consultam o profile canônico; o frontend não decide autorização. Service role permanece server-only e não é utilizada no fluxo de sessão.
+
+## Credenciais Omie
+
+`OMIE_APP_KEY` e `OMIE_APP_SECRET` são validadas apenas quando o cliente Omie é criado, sempre em módulo marcado `server-only`. O logger estruturado registra somente metadados operacionais — endpoint, call, tentativa, status e duração — e os erros normalizados redigem qualquer ocorrência das credenciais.

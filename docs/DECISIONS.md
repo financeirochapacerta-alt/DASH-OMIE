@@ -58,3 +58,9 @@
 - Status: aceito — 2026-08-20
 - Decisão: RLS aplica a matriz no banco; server components validam claims e profile; `proxy.ts` limita-se a refresh/redirecionamento otimista. Helpers `security definer` ficam em schema privado, sem parâmetros de identidade e com `search_path` vazio.
 - Motivo: evitar que UI, cookies não validados ou recursão de policies se tornem fronteira de segurança.
+
+## ADR-011 — Cliente Omie resiliente e testável
+
+- Status: aceito — 2026-08-20
+- Decisão: centralizar autenticação e chamadas Omie em cliente server-only, com timeout de 30 segundos, até seis retries exponenciais para 429/5xx/rede/timeout, teto de 60 segundos e suporte a `Retry-After`. Paginação usa tamanho 50 e pausa padrão de 800 ms, com transporte e espera injetáveis.
+- Motivo: impedir vazamento de secrets, padronizar falhas e permitir testes offline determinísticos sem fixar prematuramente contratos de entidades.
