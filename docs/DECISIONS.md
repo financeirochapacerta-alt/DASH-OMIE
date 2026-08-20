@@ -88,3 +88,9 @@
 - Status: aceito — 2026-08-20
 - Decisão: a DRE inicial usa vencimento, `signed_value` e mappings configuráveis, mantendo `unmapped` auditável. Caixa separa posição atual por contas selecionadas, realizado quitado e projeção de abertos; vencidos são reposicionados somente na projeção. Limite mínimo e horizonte são configurações únicas.
 - Motivo: entregar gestão reproduzível sem alegar competência contábil ou data de baixa ainda não confirmadas, preservando sinal e datas originais.
+
+## ADR-016 — Shell gerencial server-first e visualização única
+
+- Status: aceito — 2026-08-20
+- Decisão: usar App Router/Server Components para autorização e leitura centralizada de analytics; Client Components ficam restritos ao shell interativo e gráficos. Recharts, em versão fixada, é a única biblioteca de gráficos. Ausência de dados gera empty state, nunca fixtures no produto.
+- Motivo: reduzir exposição de dados, fetch duplicado e lógica crítica no browser, mantendo uma experiência responsiva e coerente.

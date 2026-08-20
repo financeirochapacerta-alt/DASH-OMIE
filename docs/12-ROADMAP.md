@@ -29,3 +29,7 @@ Implementado o núcleo offline de Pedidos, enriquecimento/parcelas, OS conservad
 ## Bloco financeiro gerencial — Etapas 9 e 10
 
 Implementados motor DRE gerencial, hierarquia configurável, cobertura de mappings, saldo por conta/consolidado, realizado, projeção, caixa mínimo e sinais de risco. Competência contábil, devoluções e data real de baixa permanecem fora do escopo até evidência.
+
+## Bloco de experiência gerencial
+
+Implementados shell responsivo, navegação por role, consultas analytics server-side, Visão Geral, Financeiro, Caixa, DRE, Comercial, Alertas, parâmetros ADMIN, filtros e estados de interface. Recharts é a biblioteca visual única. A conexão operacional com dados reais, edição completa dos mappings e refinamentos de produção permanecem nos blocos seguintes.

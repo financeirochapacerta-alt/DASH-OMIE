@@ -25,3 +25,5 @@ No app, `proxy.ts` renova cookies e faz redirecionamento otimista. Páginas prot
 `OMIE_APP_KEY` e `OMIE_APP_SECRET` são validadas apenas quando o cliente Omie é criado, sempre em módulo marcado `server-only`. O logger estruturado registra somente metadados operacionais — endpoint, call, tentativa, status e duração — e os erros normalizados redigem qualquer ocorrência das credenciais.
 
 As views de DRE e caixa usam `security_invoker`; os objetos são negados a `anon` e concedidos explicitamente a `authenticated`, mantendo RLS das tabelas-base. FINANCEIRO pode ler somente as configurações `minimum_cash` e `cash_projection_days`; alteração continua restrita a ADMIN.
+
+O shell filtra a navegação por role, mas cada rota também valida sessão, profile ativo e área no servidor antes de consultar analytics. As consultas ficam centralizadas em `features/management`, nunca acessam RAW e não enviam dados financeiros a roles sem policy. Configurações são gravadas por Server Action ADMIN e continuam sujeitas a RLS.
