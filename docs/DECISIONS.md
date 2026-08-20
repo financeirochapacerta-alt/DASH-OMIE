@@ -34,3 +34,15 @@
 - Status: aceito — 2026-08-20
 - Decisão: usar `@supabase/ssr` atual com clientes browser/server separados; o cliente comum usa chave anon, e service role/Omie permanecem em módulo protegido por `server-only`. Zod centraliza contratos de ambiente.
 - Motivo: impedir importação acidental de secrets no browser e validar configuração na fronteira, sem conectar projeto real.
+
+## ADR-007 — Schemas, chaves e exposição do banco
+
+- Status: aceito — 2026-08-20
+- Decisão: separar `raw`, `public` normalizado e `analytics`; usar UUID em ingestão/eventos e `bigint identity` internamente nas entidades normalizadas. `raw`/`analytics` ficam fora dos schemas expostos; tabelas começam com RLS e sem policies até Auth.
+- Motivo: rastreabilidade, índices menores no modelo relacional e menor superfície de acesso.
+
+## ADR-008 — Sinal financeiro como dado derivado
+
+- Status: aceito — 2026-08-20
+- Decisão: `signed_value` é coluna gerada a partir de `original_value`: positiva em recebíveis e negativa em pagáveis; valores originais não negativos são protegidos por constraint.
+- Motivo: tornar a regra invariável no banco e independente do frontend/importador.

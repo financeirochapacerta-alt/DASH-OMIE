@@ -21,3 +21,6 @@ Pedido normal, cancelado, faturado e com múltiplas parcelas; recebível e pagá
 
 Testar idempotência, paginação, retry/429, reprocessamento e reconciliação. “Compila” não é critério de aceite; etapa exige testes aplicáveis e revisão dos resultados.
 
+## Banco local
+
+Testes pgTAP em `supabase/tests` verificam schemas e invariantes de sinal/valor. Execute `npm run test:db` após iniciar a stack local com Docker. Os testes TypeScript de sinal rodam sem Docker; as colunas geradas e constraints são a proteção canônica no banco.

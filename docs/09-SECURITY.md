@@ -12,3 +12,6 @@ Supabase Auth; autorização server-side e RLS por menor privilégio; perfis pos
 
 Validar entrada e webhook, limitar taxa, proteger contra replay, registrar auditoria de ações sensíveis e redigir logs. Rotacionar secrets em incidente. Dependency/secret scanning e headers seguros entram no bootstrap/produção conforme roadmap.
 
+## Estado do banco após a Etapa 2
+
+RLS está habilitado em todas as tabelas RAW e normalizadas, sem policy permissiva. `anon` e `authenticated` não recebem acesso até o modelo de autorização da Etapa 3. Os schemas `raw` e `analytics` não estão expostos pela Data API; grants públicos foram revogados. Views analytics usam `security_invoker` como defesa adicional. RAW permanece destinado exclusivamente ao backend/service role.
