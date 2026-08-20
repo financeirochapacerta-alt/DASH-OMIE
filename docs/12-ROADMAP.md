@@ -21,3 +21,7 @@ Cada etapa exige documentação atualizada, testes proporcionais e critérios de
 16. **Produção:** segurança, backup/restore, observabilidade, runbooks e deploy autorizado.
 
 Spikes de `13-OPEN-QUESTIONS.md` devem ocorrer antes da etapa que depende deles, não todos antecipadamente.
+
+## Bloco comercial — Etapas 7, 8 e 11A
+
+Implementado o núcleo offline de Pedidos, enriquecimento/parcelas, OS conservadora, mapeamento de etapas e views analíticas comerciais. Validação contra payload sanitizado e execução pgTAP local continuam condicionadas a ambiente/evidência externa.

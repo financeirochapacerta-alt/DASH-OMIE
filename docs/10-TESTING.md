@@ -34,3 +34,5 @@ Os testes do cliente são totalmente offline: transporte e espera são injetados
 Fixtures sanitizadas cobrem clientes, vendedores, categorias e contas correntes. Testes unitários validam DTOs mínimos, S/N, datas brasileiras, NUMERIC como string, hash canônico, múltiplas páginas, RAW antes da normalização, resultados de upsert, isolamento de falhas e preservação de `selected_for_cash`. Todo transporte e repositório é injetado; nenhuma suíte acessa Omie ou Supabase remoto.
 
 As regressões financeiras cobrem sinal positivo/negativo, consolidação exata de 1000 - 400 = 600, classificação de status, cancelamento, vencidos, datas, FKs nulas, paginação e independência dos syncs. Um teste pgTAP adicional valida as views financeiras quando a stack Docker estiver disponível.
+
+O bloco comercial tem fixtures/testes offline para IDs técnicos versus números de exibição, totais decimais, relações ausentes, parcelas múltiplas/duplicadas/inválidas, separação previsão-vencimento, fila de enriquecimento, cancelamento conservador, OS incompleta, faturado/a faturar e ABC determinística.

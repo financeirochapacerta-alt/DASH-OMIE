@@ -22,3 +22,10 @@ Etapas padrão configuráveis: Ordem de Serviço, Em Execução, Executado, Fatu
 ## Janelas iniciais
 
 Pedidos/OS: 2025-01-01 até hoje. Receber/pagar: 2025-01-01 até hoje + 1 ano. Incremental e reconciliação poderão aperfeiçoar isso sem perder histórico.
+
+## Comercial
+
+- Pedido só participa dos indicadores quando `is_cancelled = false`; estado nulo é excluído conservadoramente até enriquecimento.
+- OS participa sem inferência de cancelamento; esse estado continua desconhecido e visível como qualidade de dados.
+- Faturado deriva da data de faturamento ou classificação configurada `Faturado`. Estágios comerciais conhecidos compõem `to_invoice`; demais casos são `unknown`.
+- Previsão do pedido e vencimento real da primeira parcela são datas distintas. Não existe uma “data da venda” genérica.

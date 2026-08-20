@@ -10,3 +10,4 @@ Todos os indicadores devem declarar definição, filtros, granularidade, timezon
 
 Metas, inadimplência, carteira, resultado e Curva ABC precisam de definições formais antes da implementação.
 
+O núcleo comercial entrega total, quantidade, ticket médio, faturado/a faturar, ranking por vendedor/cliente, pipeline e ABC. A ABC atual ordena faturamento elegível decrescente (cliente como desempate), usa percentuais cumulativos A até 80%, B até 95% e C acima disso. É uma definição técnica inicial, a validar com o negócio.

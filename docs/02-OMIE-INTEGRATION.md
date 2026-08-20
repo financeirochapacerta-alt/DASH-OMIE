@@ -34,3 +34,7 @@ A documentação oficial consultada em 2026-08-20 confirma filtros por data para
 ## Financeiro implementado
 
 Contas a receber (`financas/contareceber`, `ListarContasReceber`) e contas a pagar (`financas/contapagar`, `ListarContasPagar`) usam o Omie Core e o pipeline RAW/normalização/upsert existente. Os DTOs mínimos preservam IDs de relacionamento, datas, valor original, status, documento e parcela; relações ausentes permanecem nulas e nunca impedem a captura do título.
+
+## Comercial implementado
+
+Pedidos usam `produtos/pedido` (`ListarPedidos` e, por fila unitária, `ConsultarPedido`). `codigo_pedido` é a chave técnica; `numero_pedido` é apenas exibição. O detalhe tem RAW próprio e enriquece cancelamento, faturamento e parcelas. OS usa `servicos/os`/`ListarOS`, com `nCodOS` como chave e `cNumOS` para exibição. Relações ausentes não impedem ingestão. Cancelamento e vencimento real de OS permanecem nulos até evidência operacional sanitizada.

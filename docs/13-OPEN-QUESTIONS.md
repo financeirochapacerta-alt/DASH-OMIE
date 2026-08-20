@@ -15,6 +15,8 @@ Não considerar os itens abaixo como regras até que evidência (documentação 
 
 Também formalizar antes do uso: metas, carteira, inadimplência, resultado gerencial, caixa mínimo e Curva ABC.
 
+O bloqueio de implementação de OS foi reduzido: listagem e identidade `nCodOS` estão adotadas. Continuam abertas, sem inferência em produção, as semânticas operacionais de cancelamento e vencimento real de OS. A definição ABC 80/95 por faturamento é provisória e ainda requer validação de negócio.
+
 Na Etapa 5, filtros incrementais foram confirmados na documentação para clientes e vendedores. Permanecem pendentes a semântica exata de inclusão/alteração em janelas sobrepostas e o suporte equivalente para categorias e contas correntes; até validação, estes dois módulos usam full listing.
 
 Na Etapa 6, a documentação oficial confirmou filtros de inclusão/alteração para receber e pagar, mas não um filtro inequívoco de vencimento que represente a janela histórica/projetada. O fallback atual usa full listing e janela local por `data_vencimento`; cursores incrementais e janelas sobrepostas continuam pendentes de validação operacional.

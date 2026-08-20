@@ -29,3 +29,5 @@ Usar `last-modified`/cursor somente após confirmar endpoint a endpoint. Onde in
 ## Exclusões
 
 Não apagar por ausência em uma página. Política de tombstone/ausência depende do spike sobre exclusões reais da Omie.
+
+Pedidos e OS sincronizam independentemente por listagem paginada. Pedidos novos ficam `pending`; uma fila deduplicada consulta um detalhe por vez, preserva o RAW de `ConsultarPedido` e conclui como `enriched` ou `failed`. Reprocessar item concluído exige decisão explícita do orquestrador.

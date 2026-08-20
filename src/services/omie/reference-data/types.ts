@@ -80,7 +80,10 @@ export type ReferenceEntity =
   | "categories"
   | "bank_accounts"
   | "accounts_receivable"
-  | "accounts_payable";
+  | "accounts_payable"
+  | "sales_orders"
+  | "sales_order_details"
+  | "service_orders";
 
 export type RawOmieRecord = {
   entityType: ReferenceEntity;

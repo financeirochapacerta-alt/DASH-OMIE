@@ -76,3 +76,9 @@
 - Status: aceito — 2026-08-20
 - Decisão: preservar valor/status originais; validar o sinal no normalizador e gerá-lo novamente no PostgreSQL. Classificação de liquidação/cancelamento é central, case-insensitive e fail-safe. Analytics exclui cancelados e define aberto/vencido somente entre títulos não liquidados e não cancelados.
 - Motivo: impedir a regressão histórica de somar despesas como entradas e manter estados desconhecidos auditáveis sem suposições silenciosas.
+
+## ADR-014 — Elegibilidade e enriquecimento comercial conservadores
+
+- Status: aceito — 2026-08-20
+- Decisão: `codigo_pedido` e `nCodOS` são identidades técnicas. Pedido entra em analytics somente após cancelamento confirmado como falso; seu detalhe e parcelas são enriquecidos em fila deduplicada com RAW separado. OS não infere cancelamento nem vencimento real. Classificações de etapa permanecem configuráveis.
+- Motivo: evitar faturamento inflado por cancelados/estados desconhecidos e preservar dados incompletos para reconciliação.

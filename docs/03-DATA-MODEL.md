@@ -31,3 +31,7 @@ Recebíveis e pagáveis mantêm `original_value` não negativo e têm `signed_va
 ## Auditoria
 
 Manter origem, timestamps de negócio e ingestão separados, execução de sync e transformação aplicada. Exclusão na Omie não deve ser presumida: aguarda spike.
+
+## Núcleo comercial
+
+`sales_orders` e `service_orders` aceitam cliente/vendedor ausente para preservar registros da origem. Parcelas pertencem a um pedido e são deduplicadas por número ou referência Omie. RAW de listagem e RAW de detalhe de pedido são entidades distintas. Views comerciais ficam em `analytics`, com `security_invoker`.
