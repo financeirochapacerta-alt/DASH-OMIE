@@ -20,3 +20,5 @@ O bloqueio de implementação de OS foi reduzido: listagem e identidade `nCodOS`
 Na Etapa 5, filtros incrementais foram confirmados na documentação para clientes e vendedores. Permanecem pendentes a semântica exata de inclusão/alteração em janelas sobrepostas e o suporte equivalente para categorias e contas correntes; até validação, estes dois módulos usam full listing.
 
 Na Etapa 6, a documentação oficial confirmou filtros de inclusão/alteração para receber e pagar, mas não um filtro inequívoco de vencimento que represente a janela histórica/projetada. O fallback atual usa full listing e janela local por `data_vencimento`; cursores incrementais e janelas sobrepostas continuam pendentes de validação operacional.
+
+A DRE inicial permanece explicitamente gerencial por vencimento. Competência estrita, devoluções, escolha entre mappings manuais/Omie e data real de baixa seguem abertas. Os defaults técnicos de caixa mínimo (0) e horizonte (30 dias) precisam de validação de negócio antes da publicação executiva.

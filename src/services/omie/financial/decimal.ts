@@ -14,6 +14,14 @@ function pow10(exponent: number) {
   return BigInt(10) ** BigInt(exponent);
 }
 
+export function compareDecimals(left: string, right: string) {
+  const a = parseDecimal(left);
+  const b = parseDecimal(right);
+  const scale = Math.max(a.scale, b.scale);
+  const difference = a.units * pow10(scale - a.scale) - b.units * pow10(scale - b.scale);
+  return difference < BigInt(0) ? -1 : difference > BigInt(0) ? 1 : 0;
+}
+
 export function negateDecimal(value: string): string {
   const parsed = parseDecimal(value);
   if (parsed.units === BigInt(0)) return value.replace(/^\+/, "");

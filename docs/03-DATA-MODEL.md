@@ -35,3 +35,7 @@ Manter origem, timestamps de negócio e ingestão separados, execução de sync 
 ## Núcleo comercial
 
 `sales_orders` e `service_orders` aceitam cliente/vendedor ausente para preservar registros da origem. Parcelas pertencem a um pedido e são deduplicadas por número ou referência Omie. RAW de listagem e RAW de detalhe de pedido são entidades distintas. Views comerciais ficam em `analytics`, com `security_invoker`.
+
+## Financeiro gerencial
+
+A DRE consome `analytics.financial_movements` e mantém drill-down por título, categoria, conta DRE, grupo, tipo e mês. Mappings possuem ordens estáveis por nível. Caixa mantém saldo por conta selecionada, realizado diário/mensal e projeção diária; vencimento original nunca é reescrito.

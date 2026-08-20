@@ -82,3 +82,9 @@
 - Status: aceito — 2026-08-20
 - Decisão: `codigo_pedido` e `nCodOS` são identidades técnicas. Pedido entra em analytics somente após cancelamento confirmado como falso; seu detalhe e parcelas são enriquecidos em fila deduplicada com RAW separado. OS não infere cancelamento nem vencimento real. Classificações de etapa permanecem configuráveis.
 - Motivo: evitar faturamento inflado por cancelados/estados desconhecidos e preservar dados incompletos para reconciliação.
+
+## ADR-015 — DRE gerencial por vencimento e caixa em três conceitos
+
+- Status: aceito — 2026-08-20
+- Decisão: a DRE inicial usa vencimento, `signed_value` e mappings configuráveis, mantendo `unmapped` auditável. Caixa separa posição atual por contas selecionadas, realizado quitado e projeção de abertos; vencidos são reposicionados somente na projeção. Limite mínimo e horizonte são configurações únicas.
+- Motivo: entregar gestão reproduzível sem alegar competência contábil ou data de baixa ainda não confirmadas, preservando sinal e datas originais.

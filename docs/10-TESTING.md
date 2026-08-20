@@ -36,3 +36,5 @@ Fixtures sanitizadas cobrem clientes, vendedores, categorias e contas correntes.
 As regressões financeiras cobrem sinal positivo/negativo, consolidação exata de 1000 - 400 = 600, classificação de status, cancelamento, vencidos, datas, FKs nulas, paginação e independência dos syncs. Um teste pgTAP adicional valida as views financeiras quando a stack Docker estiver disponível.
 
 O bloco comercial tem fixtures/testes offline para IDs técnicos versus números de exibição, totais decimais, relações ausentes, parcelas múltiplas/duplicadas/inválidas, separação previsão-vencimento, fila de enriquecimento, cancelamento conservador, OS incompleta, faturado/a faturar e ABC determinística.
+
+O bloco financeiro gerencial protege DRE 1000 − 400 = 600, cancelados, mappings/unmapped, hierarquia e drill-down. Caixa cobre seleção/bloqueio de contas, saldo 10000 + 5000 − 3000 = 12000, vencidos trazidos para hoje sem mutação, quitados/cancelados, horizonte, caixa mínimo e primeira data negativa. O pgTAP correspondente valida as views quando a stack local estiver disponível.

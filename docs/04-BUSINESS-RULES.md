@@ -29,3 +29,9 @@ Pedidos/OS: 2025-01-01 até hoje. Receber/pagar: 2025-01-01 até hoje + 1 ano. I
 - OS participa sem inferência de cancelamento; esse estado continua desconhecido e visível como qualidade de dados.
 - Faturado deriva da data de faturamento ou classificação configurada `Faturado`. Estágios comerciais conhecidos compõem `to_invoice`; demais casos são `unknown`.
 - Previsão do pedido e vencimento real da primeira parcela são datas distintas. Não existe uma “data da venda” genérica.
+
+## DRE e caixa
+
+- A DRE inicial é gerencial por vencimento, não competência contábil estrita. Usa `signed_value`, exclui cancelados e expõe categorias sem mapping como `unmapped`.
+- Saldo atual soma ao saldo inicial apenas títulos quitados, vinculados à conta e com vencimento desde `balance_date`. Somente contas selecionadas, ativas e não bloqueadas entram no consolidado.
+- Realizado contém quitados; projetado contém abertos não cancelados. Vencidos são apresentados hoje na projeção sem alterar `due_date`.

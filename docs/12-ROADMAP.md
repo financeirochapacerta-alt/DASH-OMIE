@@ -25,3 +25,7 @@ Spikes de `13-OPEN-QUESTIONS.md` devem ocorrer antes da etapa que depende deles,
 ## Bloco comercial — Etapas 7, 8 e 11A
 
 Implementado o núcleo offline de Pedidos, enriquecimento/parcelas, OS conservadora, mapeamento de etapas e views analíticas comerciais. Validação contra payload sanitizado e execução pgTAP local continuam condicionadas a ambiente/evidência externa.
+
+## Bloco financeiro gerencial — Etapas 9 e 10
+
+Implementados motor DRE gerencial, hierarquia configurável, cobertura de mappings, saldo por conta/consolidado, realizado, projeção, caixa mínimo e sinais de risco. Competência contábil, devoluções e data real de baixa permanecem fora do escopo até evidência.
