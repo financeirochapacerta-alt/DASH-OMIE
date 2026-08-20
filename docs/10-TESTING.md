@@ -30,3 +30,5 @@ Testes unitários da matriz cobrem ADMIN, FINANCEIRO, COMERCIAL, PRODUCAO, VIEWE
 ## Omie Core
 
 Os testes do cliente são totalmente offline: transporte e espera são injetados, e timers falsos validam timeout sem acessar a API real. A suíte cobre payload padrão, sucesso, faults funcionais, 400 sem retry, 429/5xx com retry, `Retry-After`, limite de tentativas, backoff, paginação e redação de secrets.
+
+Fixtures sanitizadas cobrem clientes, vendedores, categorias e contas correntes. Testes unitários validam DTOs mínimos, S/N, datas brasileiras, NUMERIC como string, hash canônico, múltiplas páginas, RAW antes da normalização, resultados de upsert, isolamento de falhas e preservação de `selected_for_cash`. Todo transporte e repositório é injetado; nenhuma suíte acessa Omie ou Supabase remoto.

@@ -24,6 +24,8 @@ Views/materialized views/funções para indicadores, DRE, funil e caixa. Devem s
 
 Recebíveis e pagáveis derivam `signed_value` por coluna gerada no banco, impedindo divergência do valor original. `is_cancelled` de pedidos/OS permanece nullable quando a confirmação ainda não existe.
 
+Nos cadastros-base, a persistência sincronizada usa o identificador Omie como chave de upsert e hash SHA-256 canônico para detectar payload inalterado. Campos gerenciais locais não pertencem ao DTO sincronizado: em especial, `bank_accounts.selected_for_cash` nunca integra o conjunto de atualização da Omie e deve ser preservado em todo upsert.
+
 ## Auditoria
 
 Manter origem, timestamps de negócio e ingestão separados, execução de sync e transformação aplicada. Exclusão na Omie não deve ser presumida: aguarda spike.

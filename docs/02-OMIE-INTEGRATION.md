@@ -24,3 +24,9 @@ Consulte `08-SYNC-STRATEGY.md` e `13-OPEN-QUESTIONS.md`.
 ## Cliente base implementado
 
 O cliente server-only usa `https://app.omie.com.br/api/v1`, encapsula o envelope padrão com `app_key`, `app_secret`, `call` e `param`, e aplica timeout de 30 segundos. Erros HTTP e faults funcionais são normalizados sem expor credenciais. A base permanece genérica: contratos específicos de entidades serão adicionados somente após a validação de cada endpoint.
+
+## Cadastros-base implementados
+
+Os módulos offline de clientes (`geral/clientes`), vendedores (`geral/vendedores`), categorias (`geral/categorias`) e contas correntes (`geral/contacorrente`) usam os respectivos métodos `Listar*` e a paginação comum. Os DTOs cobrem somente identificadores, nomes, estados e dados técnicos requeridos pelo modelo. Payloads completos continuam preservados em RAW; metadata DRE não define ainda a estrutura final da DRE.
+
+A documentação oficial consultada em 2026-08-20 confirma filtros por data para clientes e vendedores, além de hora para clientes. Esses filtros são opcionais e específicos por módulo. Categorias e contas correntes permanecem em full listing até confirmação equivalente.

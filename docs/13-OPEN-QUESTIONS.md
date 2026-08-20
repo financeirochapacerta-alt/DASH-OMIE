@@ -15,3 +15,4 @@ Não considerar os itens abaixo como regras até que evidência (documentação 
 
 Também formalizar antes do uso: metas, carteira, inadimplência, resultado gerencial, caixa mínimo e Curva ABC.
 
+Na Etapa 5, filtros incrementais foram confirmados na documentação para clientes e vendedores. Permanecem pendentes a semântica exata de inclusão/alteração em janelas sobrepostas e o suporte equivalente para categorias e contas correntes; até validação, estes dois módulos usam full listing.

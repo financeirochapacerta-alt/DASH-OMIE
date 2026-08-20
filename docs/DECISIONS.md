@@ -64,3 +64,9 @@
 - Status: aceito — 2026-08-20
 - Decisão: centralizar autenticação e chamadas Omie em cliente server-only, com timeout de 30 segundos, até seis retries exponenciais para 429/5xx/rede/timeout, teto de 60 segundos e suporte a `Retry-After`. Paginação usa tamanho 50 e pausa padrão de 800 ms, com transporte e espera injetáveis.
 - Motivo: impedir vazamento de secrets, padronizar falhas e permitir testes offline determinísticos sem fixar prematuramente contratos de entidades.
+
+## ADR-012 — Upsert separa dados Omie de configuração local
+
+- Status: aceito — 2026-08-20
+- Decisão: adapters de persistência recebem somente campos sincronizáveis; configurações gerenciais locais são omitidas do update. `bank_accounts.selected_for_cash` é o primeiro campo protegido por esse padrão. Payload RAW recebe hash SHA-256 sobre JSON canônico para detecção de igualdade.
+- Motivo: permitir atualização operacional idempotente sem apagar decisões locais e evitar updates desnecessários.
