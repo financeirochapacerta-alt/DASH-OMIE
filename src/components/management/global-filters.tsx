@@ -10,6 +10,8 @@ export function GlobalFilters({ period, commercial = false }: { period: Period; 
       <label>
         <span>Período</span>
         <select name="period" defaultValue={period.preset} onChange={(event) => setPreset(event.target.value as PeriodPreset)}>
+          <option value="today">Hoje</option>
+          <option value="week">Esta semana</option>
           <option value="month">Este mês</option>
           <option value="previous">Mês anterior</option>
           <option value="3m">Últimos 3 meses</option>

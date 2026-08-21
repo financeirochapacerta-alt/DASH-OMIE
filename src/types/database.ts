@@ -217,10 +217,14 @@ export type Database = {
       }
       open_payables: {
         Row: {
+          bank_account_description: string | null
           bank_account_id: number | null
           category_id: number | null
+          category_name: string | null
           created_at: string | null
           customer_id: number | null
+          customer_name: string | null
+          days_to_due: number | null
           document_number: string | null
           due_date: string | null
           forecast_date: string | null
@@ -233,51 +237,10 @@ export type Database = {
           omie_id: string | null
           original_value: number | null
           seller_id: number | null
+          seller_name: string | null
           signed_value: number | null
           status: string | null
           updated_at: string | null
-        }
-        Insert: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
         }
         Relationships: [
           {
@@ -298,10 +261,14 @@ export type Database = {
       }
       open_receivables: {
         Row: {
+          bank_account_description: string | null
           bank_account_id: number | null
           category_id: number | null
+          category_name: string | null
           created_at: string | null
           customer_id: number | null
+          customer_name: string | null
+          days_to_due: number | null
           document_number: string | null
           due_date: string | null
           forecast_date: string | null
@@ -314,51 +281,10 @@ export type Database = {
           omie_id: string | null
           original_value: number | null
           seller_id: number | null
+          seller_name: string | null
           signed_value: number | null
           status: string | null
           updated_at: string | null
-        }
-        Insert: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
         }
         Relationships: [
           {
@@ -379,10 +305,14 @@ export type Database = {
       }
       overdue_payables: {
         Row: {
+          bank_account_description: string | null
           bank_account_id: number | null
           category_id: number | null
+          category_name: string | null
           created_at: string | null
           customer_id: number | null
+          customer_name: string | null
+          days_to_due: number | null
           document_number: string | null
           due_date: string | null
           forecast_date: string | null
@@ -395,51 +325,10 @@ export type Database = {
           omie_id: string | null
           original_value: number | null
           seller_id: number | null
+          seller_name: string | null
           signed_value: number | null
           status: string | null
           updated_at: string | null
-        }
-        Insert: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
         }
         Relationships: [
           {
@@ -460,10 +349,14 @@ export type Database = {
       }
       overdue_receivables: {
         Row: {
+          bank_account_description: string | null
           bank_account_id: number | null
           category_id: number | null
+          category_name: string | null
           created_at: string | null
           customer_id: number | null
+          customer_name: string | null
+          days_to_due: number | null
           document_number: string | null
           due_date: string | null
           forecast_date: string | null
@@ -476,51 +369,10 @@ export type Database = {
           omie_id: string | null
           original_value: number | null
           seller_id: number | null
+          seller_name: string | null
           signed_value: number | null
           status: string | null
           updated_at: string | null
-        }
-        Insert: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          bank_account_id?: number | null
-          category_id?: number | null
-          created_at?: string | null
-          customer_id?: number | null
-          document_number?: string | null
-          due_date?: string | null
-          forecast_date?: string | null
-          id?: number | null
-          installment_number?: string | null
-          is_cancelled?: boolean | null
-          is_settled?: boolean | null
-          issue_date?: string | null
-          last_synced_at?: string | null
-          omie_id?: string | null
-          original_value?: number | null
-          seller_id?: number | null
-          signed_value?: number | null
-          status?: string | null
-          updated_at?: string | null
         }
         Relationships: [
           {
@@ -630,6 +482,24 @@ export type Database = {
           total_value: number
         }[]
       }
+      payables_aging: {
+        Args: never
+        Returns: {
+          bucket: string
+          bucket_order: number
+          title_count: number
+          total_value: number
+        }[]
+      }
+      receivables_aging: {
+        Args: never
+        Returns: {
+          bucket: string
+          bucket_order: number
+          title_count: number
+          total_value: number
+        }[]
+      }
       sales_by_seller_period: {
         Args: { p_from?: string; p_to?: string }
         Returns: {
@@ -643,6 +513,10 @@ export type Database = {
           total_value: number
         }[]
       }
+      sales_customers_period: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: number
+      }
       sales_pipeline_period: {
         Args: { p_from?: string; p_to?: string }
         Returns: {
@@ -651,6 +525,16 @@ export type Database = {
           source: string
           stage_classification: string
           stage_code: string
+          total_value: number
+        }[]
+      }
+      sales_summary_by_source_period: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          invoiced_value: number
+          sale_count: number
+          source: string
+          to_invoice_value: number
           total_value: number
         }[]
       }
