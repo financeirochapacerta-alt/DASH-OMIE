@@ -19,5 +19,11 @@ export async function login(page: Page, creds: RoleCredentials) {
   await page.goto("/login");
   await page.getByLabel(/e-mail/i).fill(creds.email);
   await page.getByLabel(/senha/i).fill(creds.password);
-  await page.getByRole("button", { name: /entrar/i }).click();
+  // Wait for the server action's response (redirect or re-rendered error) so the session
+  // cookie is committed before the test issues another navigation — otherwise a fast test
+  // with no intervening polling assertion can race ahead and cancel the pending redirect.
+  await Promise.all([
+    page.waitForResponse((response) => response.url().endsWith("/login") && response.request().method() === "POST"),
+    page.getByRole("button", { name: /entrar/i }).click(),
+  ]);
 }

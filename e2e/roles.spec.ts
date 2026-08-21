@@ -6,7 +6,7 @@ test.describe("Autorização por role", () => {
     const creds = skipUnlessCredentials("ADMIN");
     await login(page, creds);
     await page.goto("/administracao");
-    await expect(page.getByText(/qualidade dos dados/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Qualidade dos dados", exact: true })).toBeVisible();
     await page.goto("/configuracoes");
     await expect(page.getByText(/parâmetros gerenciais/i)).toBeVisible();
   });

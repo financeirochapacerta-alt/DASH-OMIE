@@ -12,6 +12,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // Next dev compiles each route on first hit; a cold compile can outlast the 30s default,
+  // especially for pages nobody has navigated to yet in the current dev server process.
+  timeout: 45_000,
+  // A single `next dev` process serializes on-demand route compilation — real concurrent
+  // browser sessions against it contend for the same compile queue and time out under load.
+  // Serial execution matches how this suite is actually meant to run locally.
+  workers: process.env.CI ? undefined : 1,
   reporter: [["list"]],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3000",
