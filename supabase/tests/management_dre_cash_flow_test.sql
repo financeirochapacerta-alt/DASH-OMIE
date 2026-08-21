@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(12);
+select plan(16);
 
 insert into public.categories (omie_id, name) values ('stage9-revenue', 'Revenue'), ('stage9-cost', 'Cost');
 insert into public.dre_category_mappings (category_id, dre_type, dre_group, dre_account, source)
@@ -9,10 +9,19 @@ select id, 'Revenue', 'Operating', 'Sales', 'manual' from public.categories wher
 insert into public.dre_category_mappings (category_id, dre_type, dre_group, dre_account, source)
 select id, 'Expense', 'Operating', 'Inputs', 'manual' from public.categories where omie_id = 'stage9-cost';
 
-insert into public.bank_accounts (omie_id, description, initial_balance, balance_date, selected_for_cash)
-values ('stage10-selected', 'Selected', 10000, current_date - 10, true),
-       ('stage10-unselected', 'Unselected', 99999, current_date - 10, false),
-       ('stage10-no-balance-date', 'No reference date', 0, null, true);
+insert into public.bank_accounts (omie_id, description, initial_balance, balance_date, selected_for_cash, blocked, inactive)
+values ('stage10-selected', 'Selected', 10000, current_date - 10, true, false, false),
+       ('stage10-unselected', 'Unselected', 99999, current_date - 10, false, false, false),
+       ('stage10-no-balance-date', 'No reference date', 0, null, true, false, false),
+       ('stage22-blocked', 'Blocked', 0, current_date - 10, true, true, false),
+       ('stage22-inactive', 'Inactive', 0, current_date - 10, true, false, true);
+
+insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
+select 'stage22-blocked-title', b.id, current_date - 1, 300, 'RECEBIDO', true
+from public.bank_accounts b where b.omie_id = 'stage22-blocked';
+insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
+select 'stage22-inactive-title', b.id, current_date - 1, 150, 'RECEBIDO', true
+from public.bank_accounts b where b.omie_id = 'stage22-inactive';
 
 insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
 select 'stage10-no-balance-date-title', b.id, current_date - 3, 250, 'RECEBIDO', true
@@ -61,6 +70,11 @@ select is_empty($$select 1 from analytics.cash_projection_movements where omie_i
 select results_eq($$select net_flow from analytics.cash_projection_daily where projection_date = current_date$$, $$values (1050::numeric)$$, 'today includes overdue open movements and the unmapped open title');
 select results_eq($$select signed_value from analytics.dre_details where omie_id = 'stage18-expense-title'$$, $$values (-500::numeric)$$, 'sign_behavior metadata never doubles or flips signed_value');
 select results_eq($$select dre_account from analytics.dre_details where omie_id = 'stage18-override-title'$$, $$values ('Curated label'::text)$$, 'manual mapping outranks an omie mapping for the same category');
+
+select is_empty($$select 1 from analytics.cash_account_balances where omie_id = 'stage22-blocked'$$, 'blocked account is excluded from cash balances even when selected_for_cash is true');
+select is_empty($$select 1 from analytics.cash_account_balances where omie_id = 'stage22-inactive'$$, 'inactive account is excluded from cash balances even when selected_for_cash is true');
+select results_eq($$select computed_balance from analytics.bank_account_reconciliation where omie_id = 'stage10-unselected'$$, $$values (99999::numeric)$$, 'reconciliation view still shows an unselected account (nothing is hidden, only excluded from consolidated totals)');
+select results_eq($$select computed_balance from analytics.bank_account_reconciliation where omie_id = 'stage22-blocked'$$, $$values (300::numeric)$$, 'reconciliation view still shows a blocked account with its real computed balance');
 
 select * from finish();
 rollback;
