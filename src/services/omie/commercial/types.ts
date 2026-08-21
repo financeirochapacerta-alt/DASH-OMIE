@@ -64,6 +64,10 @@ export type SalesOrderRecord = CommercialRelationIds & {
   invoiceDate: string | null;
   realDueDate: string | null;
   enrichmentStatus: "pending" | "enriched" | "failed";
+  // Confirmed with real payloads (Onda 3, 2026-08-21): ListarPedidos already returns
+  // lista_parcelas for 100% of sampled orders, so installments are captured at base sync
+  // time instead of requiring a separate ConsultarPedido enrichment call.
+  installments: readonly SalesOrderInstallmentRecord[];
 };
 
 export type ServiceOrderRecord = CommercialRelationIds & {
@@ -76,7 +80,11 @@ export type ServiceOrderRecord = CommercialRelationIds & {
   totalValue: string;
   inclusionDate: string | null;
   invoiceDate: string | null;
-  isCancelled: null;
+  // Confirmed with real ListarOS payloads (Onda 3, 2026-08-21): InfoCadastro.cCancelada is
+  // present the same way infoCadastro.cancelado is for pedidos, so it is no longer inferred
+  // as always-null. realDueDate stays null: no distinct "real vencimento" field was found
+  // for OS (dDtPrevisao is only a forecast), so it is not invented.
+  isCancelled: boolean | null;
   realDueDate: null;
 };
 

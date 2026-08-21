@@ -17,8 +17,12 @@ export function billingStatus(sale: CommercialSale): BillingStatus {
   if (sale.invoiceDate || stage === "faturado") return "invoiced";
   return PRE_INVOICE[sale.source].has(stage) ? "to_invoice" : "unknown";
 }
+// Confirmed with real ListarOS payloads (Onda 3, 2026-08-21) that OS cancellation is knowable
+// via InfoCadastro.cCancelada, the same way pedido cancellation comes from infoCadastro.cancelado.
+// service_order is no longer special-cased as always-eligible; both sources use the same rule
+// as analytics.sales in Postgres, so a confirmed-cancelled OS cannot inflate managerial sales.
 export function eligibleCommercialSales(sales: readonly CommercialSale[]) {
-  return sales.filter((sale) => sale.source === "service_order" || sale.isCancelled === false);
+  return sales.filter((sale) => sale.isCancelled === false);
 }
 export function commercialSummary(sales: readonly CommercialSale[]) {
   const eligible = eligibleCommercialSales(sales);

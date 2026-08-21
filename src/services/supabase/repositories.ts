@@ -3,7 +3,13 @@ import "server-only";
 import type { NormalizedRepository, RawRecordRepository, SyncErrorRecord, SyncErrorRepository, SyncStateRepository } from "@/services/omie/reference-data/sync";
 import type { RawOmieRecord, ReferenceEntity, SyncSummary, UpsertResult } from "@/services/omie/reference-data/types";
 import type { SalesOrderEnrichmentRepository } from "@/services/omie/commercial/enrichment";
-import type { SalesOrderEnrichment, SalesOrderInstallmentRecord } from "@/services/omie/commercial/types";
+import type {
+  CommercialResolver,
+  SalesOrderEnrichment,
+  SalesOrderInstallmentRecord,
+  SalesOrderRecord,
+} from "@/services/omie/commercial/types";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   FinancialRelationIds,
   FinancialRelationshipResolver,
@@ -23,6 +29,41 @@ export class SupabaseNormalizedRepository<T extends NormalizedRecord> implements
     const current = await this.db.find("public", this.table, "omie_id", record.omieId);
     if (current?.source_payload_hash === payloadHash) return "unchanged";
     await this.db.upsert("public", this.table, { ...this.toRow(record), omie_id: record.omieId, source_payload_hash: payloadHash, last_synced_at: new Date().toISOString() }, "omie_id");
+    return current ? "updated" : "inserted";
+  }
+}
+
+// Confirmed with real payloads (Onda 3, 2026-08-21): ListarPedidos already carries
+// lista_parcelas, so the base sync persists installments directly instead of requiring a
+// separate ConsultarPedido enrichment pass. Mirrors SupabaseSalesOrderEnrichmentRepository's
+// delete+reinsert pattern, driven by the same hash-based upsert as SupabaseNormalizedRepository.
+export class SupabaseSalesOrderNormalizedRepository implements NormalizedRepository<SalesOrderRecord> {
+  constructor(
+    private readonly toRow: (record: SalesOrderRecord) => Record<string, unknown>,
+    private readonly db: OperationalExecutor = new SupabaseExecutor(),
+  ) {}
+  async upsert(record: SalesOrderRecord, payloadHash: string): Promise<UpsertResult> {
+    const current = await this.db.find("public", "sales_orders", "omie_id", record.omieId);
+    if (current?.source_payload_hash === payloadHash) return "unchanged";
+    await this.db.upsert(
+      "public",
+      "sales_orders",
+      { ...this.toRow(record), omie_id: record.omieId, source_payload_hash: payloadHash, last_synced_at: new Date().toISOString() },
+      "omie_id",
+    );
+    const order = await this.db.find("public", "sales_orders", "omie_id", record.omieId);
+    if (order?.id) {
+      await this.db.delete("public", "sales_order_installments", "sales_order_id", order.id);
+      for (const item of record.installments) {
+        await this.db.insert("public", "sales_order_installments", {
+          sales_order_id: order.id,
+          installment_number: item.installmentNumber,
+          due_date: item.dueDate,
+          amount: item.amount,
+          omie_reference: item.omieReference,
+        });
+      }
+    }
     return current ? "updated" : "inserted";
   }
 }
@@ -62,6 +103,40 @@ export class SupabaseFinancialRelationshipResolver implements FinancialRelations
       this.lookupId("bank_accounts", dto.id_conta_corrente),
     ]);
     return { customerId, sellerId, categoryId, bankAccountId };
+  }
+}
+
+// src/types/database.ts only declares profiles/management_settings today, so the
+// Database-typed client rejects other tables; same structural-cast workaround as executor.ts.
+type LooseRow = Record<string, unknown>;
+type LooseResult<T> = { data: T; error: { message: string } | null };
+type LooseFilter = { eq(column: string, value: unknown): LooseFilter; maybeSingle(): Promise<LooseResult<LooseRow | null>> };
+type LooseClient = { from(table: string): { select(columns: string): LooseFilter } };
+
+export class SupabaseCommercialResolver implements CommercialResolver {
+  constructor(private readonly db: OperationalExecutor = new SupabaseExecutor()) {}
+  async resolveCustomer(omieId: number | string | undefined) {
+    if (omieId === undefined || omieId === null || omieId === "") return null;
+    const row = await this.db.find("public", "customers", "omie_id", String(omieId));
+    return row ? String(row.id) : null;
+  }
+  async resolveSeller(omieId: number | string | undefined) {
+    if (omieId === undefined || omieId === null || omieId === "") return null;
+    const row = await this.db.find("public", "sellers", "omie_id", String(omieId));
+    return row ? String(row.id) : null;
+  }
+  async resolveStage(entityType: "sales_order" | "service_order", code: string | undefined) {
+    if (!code) return null;
+    const client = createAdminClient() as unknown as LooseClient;
+    const { data, error } = await client
+      .from("stage_mappings")
+      .select("classification")
+      .eq("entity_type", entityType)
+      .eq("stage_code", code)
+      .eq("active", true)
+      .maybeSingle();
+    if (error) throw new Error(`Failed to resolve stage mapping: ${error.message}`);
+    return data ? (data.classification as string) : null;
   }
 }
 

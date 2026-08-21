@@ -32,11 +32,31 @@ function totalOrderItems(dto: SalesOrderDto) {
   );
 }
 
+// Confirmed with real payloads (Onda 3, 2026-08-21, 435 real pedidos): infoCadastro and
+// lista_parcelas are present in 100% of ListarPedidos records, not only in ConsultarPedido.
+// Cancellation must come from infoCadastro.cancelado (never inferred from etapa); cancelledAt
+// uses infoCadastro.dCan/hCan when present. Since the listing already carries everything
+// ConsultarPedido would confirm, the base sync now resolves cancellation, installments,
+// invoiceDate and realDueDate directly instead of deferring them to a separate enrichment
+// call. enrichmentStatus stays "pending" only when infoCadastro is genuinely absent from the
+// listing (not observed in the real dataset, but not assumed away either). ConsultarPedido
+// remains available for point diagnostics/reconciliation, never required for the normal flow.
+function cancellationFromInfoCadastro(infoCadastro: SalesOrderDto["infoCadastro"]) {
+  const isCancelled = parseOmieBoolean(infoCadastro?.cancelado);
+  if (!isCancelled) return { isCancelled, cancelledAt: null };
+  const date = parseBrazilianDate(infoCadastro?.dCan);
+  const time = optionalText(infoCadastro?.hCan);
+  const cancelledAt = date ? `${date}T${time ?? "00:00:00"}` : null;
+  return { isCancelled, cancelledAt };
+}
+
 export function normalizeSalesOrder(
   dto: SalesOrderDto,
   relations: CommercialRelationIds,
   stageClassification: string | null,
 ): SalesOrderRecord {
+  const { isCancelled, cancelledAt } = cancellationFromInfoCadastro(dto.infoCadastro);
+  const installments = normalizeInstallments(dto.lista_parcelas?.parcela);
   return {
     omieId: requiredId(dto.cabecalho.codigo_pedido, "codigo_pedido"),
     ...relations,
@@ -46,11 +66,12 @@ export function normalizeSalesOrder(
     stageCode: optionalText(dto.cabecalho.etapa),
     stageClassification,
     totalValue: totalOrderItems(dto),
-    isCancelled: null,
-    cancelledAt: null,
-    invoiceDate: null,
-    realDueDate: null,
-    enrichmentStatus: "pending",
+    isCancelled,
+    cancelledAt,
+    invoiceDate: parseBrazilianDate(dto.infoCadastro?.dFat),
+    realDueDate: installments[0]?.dueDate ?? null,
+    enrichmentStatus: dto.infoCadastro ? "enriched" : "pending",
+    installments,
   };
 }
 
@@ -105,11 +126,11 @@ export function normalizeSalesOrderEnrichment(dto: SalesOrderDto): {
   installments: SalesOrderInstallmentRecord[];
 } {
   const installments = normalizeInstallments(dto.lista_parcelas?.parcela);
-  const cancelled = parseOmieBoolean(dto.infoCadastro?.cancelado);
+  const { isCancelled, cancelledAt } = cancellationFromInfoCadastro(dto.infoCadastro);
   return {
     enrichment: {
-      isCancelled: cancelled,
-      cancelledAt: null,
+      isCancelled,
+      cancelledAt,
       invoiceDate: parseBrazilianDate(dto.infoCadastro?.dFat),
       realDueDate: installments[0]?.dueDate ?? null,
       enrichmentStatus: "enriched",
@@ -136,7 +157,7 @@ export function normalizeServiceOrder(
     ),
     inclusionDate: parseBrazilianDate(dto.InfoCadastro?.dDtInc),
     invoiceDate: parseBrazilianDate(dto.InfoCadastro?.dDtFat),
-    isCancelled: null,
+    isCancelled: parseOmieBoolean(dto.InfoCadastro?.cCancelada),
     realDueDate: null,
   };
 }

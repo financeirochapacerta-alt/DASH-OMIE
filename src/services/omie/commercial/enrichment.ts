@@ -36,12 +36,15 @@ export async function processNextSalesOrderEnrichment(options: {
   const job = options.queue.claim();
   if (!job) return null;
   try {
-    const detail = await options.client.request<SalesOrderDto, { codigo_pedido: string }>({
+    // Confirmed with real payloads (Onda 3, 2026-08-21): ConsultarPedido wraps the order
+    // under pedido_venda_produto, unlike ListarPedidos which returns order objects directly.
+    const response = await options.client.request<{ pedido_venda_produto: SalesOrderDto }, { codigo_pedido: string }>({
       endpoint: "produtos/pedido", call: "ConsultarPedido", param: [{ codigo_pedido: job.omieId }],
     });
     await options.rawRepository.store({ entityType: "sales_order_details", omieId: job.omieId,
-      rawJson: detail, payloadHash: hashPayload(detail), source: "omie_api",
+      rawJson: response, payloadHash: hashPayload(response), source: "omie_api",
       fetchedAt: (options.now ?? (() => new Date()))().toISOString() });
+    const detail = response.pedido_venda_produto;
     const normalized = normalizeSalesOrderEnrichment(detail);
     await options.repository.apply(job.omieId, normalized.enrichment, normalized.installments);
     options.queue.complete(job.omieId);

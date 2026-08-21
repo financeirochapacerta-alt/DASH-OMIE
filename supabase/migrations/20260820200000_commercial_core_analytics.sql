@@ -6,7 +6,8 @@ create index service_orders_stage_classification_idx on public.service_orders (s
 create index service_orders_invoice_idx on public.service_orders (invoice_date) where invoice_date is not null;
 
 create view analytics.sales with (security_invoker = true) as
-select 'sales_order'::text source, so.id, so.omie_id, so.display_number, so.customer_id, c.name customer_name,
+select 'sales_order'::text source, so.id, so.omie_id, so.display_number, so.customer_id,
+  coalesce(nullif(c.trade_name, ''), c.legal_name) customer_name,
   so.seller_id, s.name seller_name, so.contract_number, so.forecast_date, null::date inclusion_date,
   so.invoice_date, so.stage_code, coalesce(sm.classification, so.stage_classification) stage_classification,
   so.total_value, so.is_cancelled,
@@ -19,7 +20,8 @@ left join public.sellers s on s.id = so.seller_id
 left join public.stage_mappings sm on sm.entity_type = 'sales_order' and sm.stage_code = so.stage_code and sm.active
 where so.is_cancelled is false
 union all
-select 'service_order', os.id, os.omie_id, os.display_number, os.customer_id, c.name,
+select 'service_order', os.id, os.omie_id, os.display_number, os.customer_id,
+  coalesce(nullif(c.trade_name, ''), c.legal_name),
   os.seller_id, s.name, os.contract_number, os.forecast_date, os.inclusion_date,
   os.invoice_date, os.stage_code, coalesce(sm.classification, os.stage_classification), os.total_value, null::boolean,
   case when os.invoice_date is not null or lower(coalesce(sm.classification, os.stage_classification, '')) = 'faturado' then 'invoiced'
