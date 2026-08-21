@@ -1,6 +1,6 @@
 # Operação
 
-Guia prático para tarefas recorrentes. Para arquitetura e decisões, ver `docs/00-PROJECT-MASTER.md` e `docs/DECISIONS.md`.
+Guia prático para tarefas recorrentes. Para arquitetura e decisões, ver `docs/00-PROJECT-MASTER.md` e `docs/DECISIONS.md`. Para deploy/produção, ver `docs/PRODUCTION.md`.
 
 ## Como executar cada onda de sincronização
 
@@ -14,6 +14,8 @@ npm run sync:dre-mappings   # Popula dre_category_mappings a partir do dadosDRE 
 ```
 
 Enriquecimento pontual de um pedido (diagnóstico/reconciliação, não faz parte do fluxo normal — ver `scripts/enrich-onda3-sample.ts` como referência de uso do módulo `ConsultarPedido`).
+
+Em produção, onda1/onda2/onda3-pedidos rodam agendadas via GitHub Actions (`.github/workflows/sync-omie.yml`) — ver `docs/PRODUCTION.md` para frequência e ativação. Rodar localmente continua funcionando do mesmo jeito para diagnóstico ou reprocessamento pontual.
 
 ## Como verificar o estado da sincronização
 

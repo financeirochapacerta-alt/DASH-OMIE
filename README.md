@@ -33,8 +33,12 @@ Projeto exclusivo da Chapa Certa (nunca reutilizar projeto pessoal — ver `AGEN
 
 ## Sincronização com a Omie
 
-Não há job/scheduler automático ainda — cada onda é um script Node standalone, feito para rodar localmente com `SUPABASE_SERVICE_ROLE_KEY`/`OMIE_APP_KEY`/`OMIE_APP_SECRET` no `.env.local`. Ver [`docs/OPERATIONS.md`](docs/OPERATIONS.md) para o passo a passo de cada onda e para o que **não** fazer.
+Cada onda é um script Node standalone (`SUPABASE_SERVICE_ROLE_KEY`/`OMIE_APP_KEY`/`OMIE_APP_SECRET`), executável localmente ou agendado via GitHub Actions (`.github/workflows/sync-omie.yml`). Ver [`docs/OPERATIONS.md`](docs/OPERATIONS.md) para o passo a passo de cada onda e para o que **não** fazer, e [`docs/PRODUCTION.md`](docs/PRODUCTION.md) para a frequência de produção.
+
+## Produção
+
+Deploy, variáveis de ambiente, Auth URLs, sincronização agendada, observabilidade, backup/recovery e rollback: [`docs/PRODUCTION.md`](docs/PRODUCTION.md).
 
 ## Documentação e estado
 
-Comece por [`docs/00-PROJECT-MASTER.md`](docs/00-PROJECT-MASTER.md) e siga [`AGENTS.md`](AGENTS.md). Dados reais da Omie sincronizados e validados (clientes, vendedores, categorias, contas correntes, financeiro, DRE, comercial); frontend homologado contra esses dados. Operação recorrente documentada em [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+Comece por [`docs/00-PROJECT-MASTER.md`](docs/00-PROJECT-MASTER.md) e siga [`AGENTS.md`](AGENTS.md). Dados reais da Omie sincronizados e validados (clientes, vendedores, categorias, contas correntes, financeiro, DRE, comercial); frontend homologado contra esses dados, incluindo Auth real e RLS por role. Operação recorrente documentada em [`docs/OPERATIONS.md`](docs/OPERATIONS.md).

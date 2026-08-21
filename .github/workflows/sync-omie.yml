@@ -1,0 +1,68 @@
+name: Sync Omie
+
+# Estratégia atual: full listing + reconciliação (nenhum endpoint tem incremental
+# confirmado — ver docs/08-SYNC-STRATEGY.md). Frequência inicial conservadora, a
+# revisar com uso real de produção. Cada script já usa lock por entidade
+# (raw.sync_locks via operational_acquire_sync_lock) — o `concurrency` abaixo é uma
+# segunda camada para nunca rodar dois disparos (cron ou manual) do mesmo workflow
+# ao mesmo tempo.
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # onda1 (cadastros: clientes/vendedores/categorias/contas) — 06:00 BRT, 1x/dia
+    - cron: "0 11,15,19,23 * * *" # onda2 (financeiro: contas a receber/pagar) — 08h/12h/16h/20h BRT
+    - cron: "0 12,16,21 * * *" # onda3 (comercial: pedidos/OS) — 09h/13h/18h BRT
+  workflow_dispatch:
+    inputs:
+      onda:
+        description: "Sincronização a executar manualmente"
+        required: true
+        type: choice
+        default: onda1
+        options:
+          - onda1
+          - onda2
+          - onda3-pedidos
+
+concurrency:
+  group: sync-omie
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - name: Determine which onda to run
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "onda=${{ inputs.onda }}" >> "$GITHUB_OUTPUT"
+          else
+            case "${{ github.event.schedule }}" in
+              "0 9 * * *") echo "onda=onda1" >> "$GITHUB_OUTPUT" ;;
+              "0 11,15,19,23 * * *") echo "onda=onda2" >> "$GITHUB_OUTPUT" ;;
+              "0 12,16,21 * * *") echo "onda=onda3-pedidos" >> "$GITHUB_OUTPUT" ;;
+              *) echo "unrecognized schedule: ${{ github.event.schedule }}" >&2; exit 1 ;;
+            esac
+          fi
+
+      - name: "Sync: ${{ steps.pick.outputs.onda }}"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OMIE_APP_KEY: ${{ secrets.OMIE_APP_KEY }}
+          OMIE_APP_SECRET: ${{ secrets.OMIE_APP_SECRET }}
+        run: npm run "sync:${{ steps.pick.outputs.onda }}"
