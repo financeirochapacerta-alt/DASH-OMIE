@@ -38,7 +38,7 @@ describe("Omie reference-data listing modules", () => {
       { pagina: 1, total_de_paginas: 1, categoria_cadastro: categories },
     ]).client;
     const bankClient = requester([
-      { pagina: 1, total_de_paginas: 1, fin_conta_corrente_cadastro: bankAccounts },
+      { pagina: 1, total_de_paginas: 1, ListarContasCorrentes: bankAccounts },
     ]).client;
 
     await expect(listSellers(sellerClient)).resolves.toMatchObject({ records: sellers });

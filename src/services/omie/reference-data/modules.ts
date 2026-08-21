@@ -15,7 +15,7 @@ type CustomerResponse = PageMetadata & { clientes_cadastro?: readonly CustomerDt
 type SellerResponse = PageMetadata & { cadastro?: readonly SellerDto[] };
 type CategoryResponse = PageMetadata & { categoria_cadastro?: readonly CategoryDto[] };
 type BankAccountResponse = PageMetadata & {
-  fin_conta_corrente_cadastro?: readonly BankAccountDto[];
+  ListarContasCorrentes?: readonly BankAccountDto[];
 };
 
 type ListOptions = { pageDelayMs?: number; sleep?: SleepFunction };
@@ -115,6 +115,6 @@ export const listBankAccounts = (client: OmieRequester, options: ListOptions = {
     client,
     "geral/contacorrente",
     "ListarContasCorrentes",
-    (response) => response.fin_conta_corrente_cadastro,
+    (response) => response.ListarContasCorrentes,
     options,
   );

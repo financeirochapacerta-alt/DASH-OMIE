@@ -4,6 +4,11 @@ import type { NormalizedRepository, RawRecordRepository, SyncErrorRecord, SyncEr
 import type { RawOmieRecord, ReferenceEntity, SyncSummary, UpsertResult } from "@/services/omie/reference-data/types";
 import type { SalesOrderEnrichmentRepository } from "@/services/omie/commercial/enrichment";
 import type { SalesOrderEnrichment, SalesOrderInstallmentRecord } from "@/services/omie/commercial/types";
+import type {
+  FinancialRelationIds,
+  FinancialRelationshipResolver,
+  FinancialTitleDto,
+} from "@/services/omie/financial/types";
 import { SupabaseExecutor, type OperationalExecutor } from "./executor";
 
 type NormalizedRecord = { omieId: string } & Record<string, unknown>;
@@ -40,6 +45,24 @@ export class SupabaseSyncLockRepository {
   constructor(private readonly db:OperationalExecutor = new SupabaseExecutor()) {}
   async acquire(entityType: ReferenceEntity, runId: string, ttlMinutes = 30) { await this.db.rpc("operational_acquire_sync_lock",{entity:entityType,run_id:runId,ttl_minutes:ttlMinutes}); }
   async release(entityType: ReferenceEntity) { await this.db.rpc("operational_release_sync_lock",{entity:entityType}); }
+}
+
+export class SupabaseFinancialRelationshipResolver implements FinancialRelationshipResolver {
+  constructor(private readonly db: OperationalExecutor = new SupabaseExecutor()) {}
+  private async lookupId(table: string, omieCode: unknown): Promise<string | null> {
+    if (omieCode === undefined || omieCode === null || omieCode === "") return null;
+    const row = await this.db.find("public", table, "omie_id", String(omieCode));
+    return row ? String(row.id) : null;
+  }
+  async resolve(dto: FinancialTitleDto): Promise<FinancialRelationIds> {
+    const [customerId, sellerId, categoryId, bankAccountId] = await Promise.all([
+      this.lookupId("customers", dto.codigo_cliente_fornecedor),
+      this.lookupId("sellers", dto.codigo_vendedor),
+      this.lookupId("categories", dto.codigo_categoria),
+      this.lookupId("bank_accounts", dto.id_conta_corrente),
+    ]);
+    return { customerId, sellerId, categoryId, bankAccountId };
+  }
 }
 
 export class SupabaseSalesOrderEnrichmentRepository implements SalesOrderEnrichmentRepository {

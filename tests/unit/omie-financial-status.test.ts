@@ -10,6 +10,10 @@ describe("financial status classification", () => {
     },
   );
 
+  it.each(["ATRASADO", "VENCE HOJE", "A VENCER"])("classifies %s as known and open", (status) => {
+    expect(classifyFinancialStatus(status)).toEqual({ isSettled: false, isCancelled: false, isKnown: true });
+  });
+
   it("classifies cancellation independently", () => {
     expect(classifyFinancialStatus("Título CANCELADO pelo usuário")).toMatchObject({
       isSettled: false,

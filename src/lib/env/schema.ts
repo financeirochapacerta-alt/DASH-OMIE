@@ -1,14 +1,19 @@
 import { z } from "zod";
 
+const optionalNonEmpty = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z.string().min(1).optional(),
+);
+
 export const publicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
 });
 
 export const serverEnvSchema = publicEnvSchema.extend({
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
-  OMIE_APP_KEY: z.string().min(1).optional(),
-  OMIE_APP_SECRET: z.string().min(1).optional(),
+  SUPABASE_SERVICE_ROLE_KEY: optionalNonEmpty,
+  OMIE_APP_KEY: optionalNonEmpty,
+  OMIE_APP_SECRET: optionalNonEmpty,
 });
 
 export const omieEnvSchema = z.object({

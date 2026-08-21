@@ -1,7 +1,7 @@
 import "server-only";
 
 const SETTLED_TERMS = ["pago", "recebido", "liquidado", "baixado", "quitado"] as const;
-const OPEN_TERMS = ["aberto", "a vencer", "vencido", "pendente"] as const;
+const OPEN_TERMS = ["aberto", "a vencer", "vencido", "atrasado", "vence hoje", "pendente"] as const;
 const NEGATED_SETTLED_TERMS = ["nao pago", "nao recebido", "nao liquidado", "nao baixado", "nao quitado"] as const;
 
 function searchableStatus(status: string) {
