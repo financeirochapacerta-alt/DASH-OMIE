@@ -1,9 +1,12 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
 
 // E2E credentials are never in code. Set E2E_ADMIN_EMAIL/E2E_ADMIN_PASSWORD (and optionally
 // E2E_FINANCEIRO_*/E2E_COMERCIAL_*/E2E_VIEWER_*) in a local, gitignored env file before running
 // tests that need a real session — see docs/OPERATIONS.md. Tests requiring a role that has no
 // credentials configured skip themselves instead of failing.
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
