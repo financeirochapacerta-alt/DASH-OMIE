@@ -1,5 +1,6 @@
 // Generated from the real remote schema: npx supabase gen types typescript --linked > src/types/database.ts
-// Regenerate after any migration that adds/changes a table, view, or function signature.
+// Regenerate after any migration that changes a table/view/function.
+
 export type Json =
   | string
   | number
@@ -19,6 +20,20 @@ export type Database = {
       [_ in never]: never
     }
     Views: {
+      bank_account_reconciliation: {
+        Row: {
+          balance_date: string | null
+          bank_account_id: number | null
+          blocked: boolean | null
+          computed_balance: number | null
+          description: string | null
+          inactive: boolean | null
+          initial_balance: number | null
+          omie_id: string | null
+          selected_for_cash: boolean | null
+        }
+        Relationships: []
+      }
       cash_account_balances: {
         Row: {
           balance_date: string | null
@@ -258,6 +273,13 @@ export type Database = {
             foreignKeyName: "accounts_payable_bank_account_id_fkey"
             columns: ["bank_account_id"]
             isOneToOne: false
+            referencedRelation: "bank_account_reconciliation"
+            referencedColumns: ["bank_account_id"]
+          },
+          {
+            foreignKeyName: "accounts_payable_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
             referencedRelation: "cash_account_balances"
             referencedColumns: ["bank_account_id"]
           },
@@ -328,6 +350,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "accounts_receivable_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_account_reconciliation"
+            referencedColumns: ["bank_account_id"]
+          },
           {
             foreignKeyName: "accounts_receivable_bank_account_id_fkey"
             columns: ["bank_account_id"]
@@ -406,6 +435,13 @@ export type Database = {
             foreignKeyName: "accounts_payable_bank_account_id_fkey"
             columns: ["bank_account_id"]
             isOneToOne: false
+            referencedRelation: "bank_account_reconciliation"
+            referencedColumns: ["bank_account_id"]
+          },
+          {
+            foreignKeyName: "accounts_payable_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
             referencedRelation: "cash_account_balances"
             referencedColumns: ["bank_account_id"]
           },
@@ -476,6 +512,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "accounts_receivable_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_account_reconciliation"
+            referencedColumns: ["bank_account_id"]
+          },
           {
             foreignKeyName: "accounts_receivable_bank_account_id_fkey"
             columns: ["bank_account_id"]
@@ -565,7 +608,51 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      customer_abc_period: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          abc_class: string
+          cumulative_percent: number
+          customer_id: number
+          customer_name: string
+          share_percent: number
+          total_value: number
+        }[]
+      }
+      sales_by_seller_period: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          average_value: number
+          invoiced_value: number
+          sale_count: number
+          sales_rank: number
+          seller_id: number
+          seller_name: string
+          to_invoice_value: number
+          total_value: number
+        }[]
+      }
+      sales_pipeline_period: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          billing_status: string
+          sale_count: number
+          source: string
+          stage_classification: string
+          stage_code: string
+          total_value: number
+        }[]
+      }
+      sales_summary_period: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          average_value: number
+          invoiced_value: number
+          sale_count: number
+          to_invoice_value: number
+          total_value: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

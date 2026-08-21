@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { formatBRL, formatDate, formatInteger } from "./format";
+import type { Period } from "./period";
 import { generateManagementAlerts, type ManagementAlert } from "./rules";
 
 export type Metric = { label: string; value: string; detail?: string; tone?: "positive" | "warning" | "negative" | "neutral" };
@@ -20,13 +21,28 @@ const num = (v: unknown) => (typeof v === "number" ? v : typeof v === "string" ?
 const txt = (v: unknown) => (typeof v === "string" ? v : null);
 const bool = (v: unknown) => v === true;
 
-// name is resolved at each call site from a fixed set of view names, not user input; the cast
-// only widens Supabase's generated literal-union type back to string for this shared helper.
-async function view(name: string) {
+// name is resolved at each call site from a fixed set of view/function names, not user input;
+// the casts only widen Supabase's generated literal-union types back to string for these
+// shared helpers.
+async function view(name: string, range?: { column: string; from: string; to: string }) {
   const client = await createClient();
-  const result = await client.schema("analytics").from(name as never).select("*");
+  const base = client.schema("analytics").from(name as never).select("*");
+  const query = range ? base.gte(range.column, range.from).lte(range.column, range.to) : base;
+  const result = await query;
   if (result.error) throw new Error("Não foi possível consultar os dados gerenciais.");
   return (result.data ?? []) as Record<string, unknown>[];
+}
+
+// Period-aware commercial aggregates (sales_summary_period, sales_by_seller_period,
+// sales_pipeline_period, customer_abc_period) — see
+// supabase/migrations/20260821230000_commercial_period_functions.sql. Scoped by
+// analytics.sales.forecast_date, the confirmed commercial date field.
+async function periodFn(name: string, period: Period) {
+  const client = await createClient();
+  const result = await client.schema("analytics").rpc(name as never, { p_from: period.from, p_to: period.to } as never);
+  if (result.error) throw new Error("Não foi possível consultar os dados gerenciais.");
+  const data = result.data;
+  return (Array.isArray(data) ? data : data ? [data] : []) as Record<string, unknown>[];
 }
 
 // management_settings is RLS-restricted to ADMIN/DIRETORIA (and FINANCEIRO for two cash keys).
@@ -47,7 +63,6 @@ const metric = (label: string, value: unknown, detail?: string, tone: Metric["to
   tone,
 });
 const totalAbs = (rows: Record<string, unknown>[]) => rows.reduce((sum, row) => sum + Math.abs(num(row.signed_value)), 0);
-const currentMonthStart = () => `${new Date().toISOString().slice(0, 7)}-01`;
 function monthlyResultTotals(rows: Record<string, unknown>[]) {
   return rows
     .filter((row) => row.month)
@@ -66,9 +81,18 @@ function alertsFrom(list: ManagementAlert[]) {
   }));
 }
 
-async function executive(): Promise<ManagementPageData> {
+// Which metrics follow the period filter, and why (see docs/06-COMMERCIAL.md /
+// 07-INDICATORS.md for the underlying rules — this only decides which already-approved
+// data source each KPI reads from):
+//
+// - Vendas/Faturado/A faturar/Melhor vendedor/Resultado gerencial: movement metrics, scoped
+//   to the selected period.
+// - A receber/A pagar/Vencido/Saldo atual/Projeção de caixa: stock or point-in-time metrics —
+//   never disappear or change because of a period filter; a bank balance or an open title list
+//   is "as of now", not "during this window".
+async function executive(period: Period): Promise<ManagementPageData> {
   const [
-    sales,
+    salesSummary,
     cash,
     projection,
     dreMonthly,
@@ -80,7 +104,7 @@ async function executive(): Promise<ManagementPageData> {
     sellers,
     highOverdueThreshold,
   ] = await Promise.all([
-    view("sales_summary"),
+    periodFn("sales_summary_period", period),
     view("cash_current_balance"),
     view("cash_projection_summary"),
     view("dre_monthly"),
@@ -89,15 +113,21 @@ async function executive(): Promise<ManagementPageData> {
     view("overdue_receivables"),
     view("overdue_payables"),
     view("cash_projection_daily"),
-    view("sales_by_seller"),
+    periodFn("sales_by_seller_period", period),
     settingValue("high_overdue_amount_threshold"),
   ]);
 
-  const s = sales[0] ?? {};
+  const s = salesSummary[0] ?? {};
   const c = cash[0] ?? {};
   const p = projection[0] ?? {};
-  const monthRows = dreMonthly.filter((row) => row.month === currentMonthStart());
-  const resultadoMes = monthRows.reduce((sum, row) => sum + num(row.amount), 0);
+  // The trend chart below intentionally stays a fixed rolling window (it's a multi-month
+  // trend by design — collapsing it to a 1-month filter selection would make it useless).
+  // Only the single KPI value is scoped to the selected period.
+  const periodDreRows = dreMonthly.filter((row) => {
+    const month = txt(row.month);
+    return month !== null && month >= period.from && month <= period.to;
+  });
+  const resultadoPeriodo = periodDreRows.reduce((sum, row) => sum + num(row.amount), 0);
   const overdueTotal = totalAbs(overdueReceivables) + totalAbs(overduePayables);
   const horizonClose = dailyProjection.at(-1);
   const topSeller = [...sellers].sort((a, b) => num(b.total_value) - num(a.total_value))[0];
@@ -118,9 +148,9 @@ async function executive(): Promise<ManagementPageData> {
 
   return {
     metrics: [
-      metric("Vendas (comercial)", s.total_value, "Pedidos e OS não cancelados"),
-      metric("Faturado", s.invoiced_value, undefined, "positive"),
-      metric("A faturar", s.to_invoice_value),
+      metric("Vendas (comercial)", s.total_value, `Pedidos e OS não cancelados — ${period.label}`),
+      metric("Faturado", s.invoiced_value, period.label, "positive"),
+      metric("A faturar", s.to_invoice_value, period.label),
       metric("A receber", totalAbs(receivables)),
       metric("Vencido (total)", overdueTotal, "Receber + pagar", overdueTotal > 0 ? "warning" : "positive"),
       metric("A pagar", totalAbs(payables)),
@@ -132,11 +162,11 @@ async function executive(): Promise<ManagementPageData> {
         detail: txt(p.first_negative_cash_date) ? "Data projetada do primeiro saldo negativo" : "Nenhum saldo negativo no horizonte atual",
         tone: txt(p.first_negative_cash_date) ? "negative" : "positive",
       },
-      metric("Resultado gerencial (mês)", resultadoMes, "DRE por vencimento", resultadoMes >= 0 ? "positive" : "negative"),
+      metric(`Resultado gerencial — ${period.label}`, resultadoPeriodo, "DRE por vencimento", resultadoPeriodo >= 0 ? "positive" : "negative"),
       {
         label: "Melhor vendedor",
         value: topSeller ? formatBRL(num(topSeller.total_value)) : "—",
-        detail: txt(topSeller?.seller_name) ?? "Sem dados no período",
+        detail: topSeller ? (txt(topSeller.seller_name) ?? "Vendedor não identificado na Omie") : `Sem vendas no período (${period.label})`,
       },
     ],
     chart: Object.entries(monthlyResultTotals(dreMonthly))
@@ -152,13 +182,13 @@ async function executive(): Promise<ManagementPageData> {
   };
 }
 
-async function financial(): Promise<ManagementPageData> {
+async function financial(period: Period): Promise<ManagementPageData> {
   const [r, p, or, op, m, realized] = await Promise.all([
     view("open_receivables"),
     view("open_payables"),
     view("overdue_receivables"),
     view("overdue_payables"),
-    view("financial_movements"),
+    view("financial_movements", { column: "due_date", from: period.from, to: period.to }),
     view("cash_realized_monthly"),
   ]);
   return {
@@ -190,6 +220,10 @@ async function financial(): Promise<ManagementPageData> {
   };
 }
 
+// Fluxo de Caixa has no period-filterable KPI: "Saldo atual" is point-in-time and the
+// projection is a forward horizon (days ahead, not a historical window) — see
+// docs/PRODUCTION.md / the filter audit. GlobalFilters is intentionally not rendered on
+// that page; this function takes no period argument.
 async function cash(): Promise<ManagementPageData> {
   const [balance, summary, daily, accountBalances] = await Promise.all([
     view("cash_current_balance"),
@@ -229,13 +263,13 @@ async function cash(): Promise<ManagementPageData> {
   };
 }
 
-async function dre(): Promise<ManagementPageData> {
-  const rows = await view("dre_monthly");
+async function dre(period: Period): Promise<ManagementPageData> {
+  const rows = await view("dre_monthly", { column: "month", from: period.from, to: period.to });
   const unmapped = rows.filter((row) => row.mapping_status === "unmapped");
   const total = rows.reduce((sum, row) => sum + num(row.amount), 0);
   return {
     metrics: [
-      metric("Resultado gerencial (todo o período)", total, undefined, total >= 0 ? "positive" : "negative"),
+      metric(`Resultado gerencial — ${period.label}`, total, undefined, total >= 0 ? "positive" : "negative"),
       { label: "Categorias não classificadas", value: formatInteger(unmapped.length), tone: unmapped.length ? "warning" : "positive" },
     ],
     chart: [],
@@ -255,21 +289,21 @@ async function dre(): Promise<ManagementPageData> {
   };
 }
 
-async function commercial(): Promise<ManagementPageData> {
+async function commercial(period: Period): Promise<ManagementPageData> {
   const [summaries, pipeline, abc, sellers, orders] = await Promise.all([
-    view("sales_summary"),
-    view("sales_pipeline"),
-    view("customer_abc"),
-    view("sales_by_seller"),
-    view("sales"),
+    periodFn("sales_summary_period", period),
+    periodFn("sales_pipeline_period", period),
+    periodFn("customer_abc_period", period),
+    periodFn("sales_by_seller_period", period),
+    view("sales", { column: "forecast_date", from: period.from, to: period.to }),
   ]);
   const s = summaries[0] ?? {};
   return {
     metrics: [
-      metric("Vendas", s.total_value),
-      metric("Faturado", s.invoiced_value, undefined, "positive"),
-      metric("A faturar", s.to_invoice_value),
-      metric("Ticket médio", s.average_value),
+      metric("Vendas", s.total_value, period.label),
+      metric("Faturado", s.invoiced_value, period.label, "positive"),
+      metric("A faturar", s.to_invoice_value, period.label),
+      metric("Ticket médio", s.average_value, period.label),
     ],
     chart: pipeline.map((row) => ({ label: txt(row.stage_classification) ?? `Etapa ${txt(row.stage_code) ?? "—"}`, primary: num(row.total_value), secondary: num(row.sale_count) })),
     secondaryChart: sellers
@@ -301,11 +335,11 @@ async function commercial(): Promise<ManagementPageData> {
   };
 }
 
-export async function getManagementPageData(page: string) {
-  if (page === "executive" || page === "alerts") return executive();
-  if (page === "financial") return financial();
+export async function getManagementPageData(page: string, period: Period) {
+  if (page === "executive" || page === "alerts") return executive(period);
+  if (page === "financial") return financial(period);
   if (page === "cash") return cash();
-  if (page === "dre") return dre();
-  if (page === "commercial") return commercial();
+  if (page === "dre") return dre(period);
+  if (page === "commercial") return commercial(period);
   return { metrics: [], chart: [], rows: [], alerts: [] } satisfies ManagementPageData;
 }
