@@ -1,22 +1,40 @@
 # Chapa Certa — Central de Gestão
 
-Aplicação web gerencial que usa a Omie como fonte operacional e PostgreSQL/Supabase como fonte analítica. A fundação executável utiliza Next.js, TypeScript, App Router e Tailwind CSS.
+Aplicação web gerencial para a Chapa Certa. A Omie é a fonte operacional; PostgreSQL/Supabase é a fonte analítica. Backend integra e aplica regras (sinais financeiros, cancelamento, DRE, caixa); o frontend só apresenta o que já foi calculado no banco. Stack: Next.js 16 (App Router), TypeScript estrito, Tailwind CSS, Supabase (Auth + Postgres/RLS).
+
+## Stack
+
+- Next.js 16 + TypeScript + Tailwind CSS.
+- Supabase: Auth, Postgres com RLS, schemas `raw`/`public`/`analytics` (ADR-007).
+- Recharts para gráficos (única biblioteca visual — ADR-016).
+- Vitest para testes; Playwright para E2E (ver `e2e/`).
 
 ## Pré-requisitos e instalação
 
 - Node.js 20.9 ou superior e npm.
 - Execute `npm install`.
-- Copie `.env.example` para `.env.local` e preencha apenas no ambiente local. Variáveis Omie e service role são exclusivamente server-side; nenhuma integração real é necessária nesta etapa.
-- Para testar login/RLS localmente, inicie a stack Supabase com Docker, aplique migrations e crie/ative usuários somente por fluxo administrativo; cadastro público está desabilitado.
+- Copie `.env.example` para `.env.local` e preencha localmente (nunca commitar valores reais):
+  - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — necessárias para rodar a aplicação.
+  - `SUPABASE_SERVICE_ROLE_KEY` — necessária apenas para os scripts de sincronização (`scripts/sync-*.ts`), nunca usada em rota/Server Action.
+  - `OMIE_APP_KEY` / `OMIE_APP_SECRET` — necessárias apenas para os scripts de sincronização.
 
-## Comandos
+## Desenvolvimento
 
-- `npm run dev` — desenvolvimento.
-- `npm run lint` — análise estática.
-- `npm run typecheck` — tipos estritos.
-- `npm test` — testes automatizados.
+- `npm run dev` — servidor de desenvolvimento.
+- `npm run lint` — análise estática (ESLint).
+- `npm run typecheck` — tipos estritos (`tsc --noEmit`).
+- `npm test` — testes unitários (Vitest).
 - `npm run build` — build de produção.
+- `npx playwright test` — testes E2E (ver [`docs/OPERATIONS.md`](docs/OPERATIONS.md) para credenciais de teste).
+
+## Supabase
+
+Projeto exclusivo da Chapa Certa (nunca reutilizar projeto pessoal — ver `AGENTS.md`). Migrations em `supabase/migrations/`, append-only: nunca editar uma migration já aplicada ao remoto, sempre criar uma nova com `create or replace view`/`alter table` quando precisar corrigir algo já publicado. Aplicar com `npx supabase db push` (sempre revisar com `--dry-run` antes). Tipos TypeScript do banco são gerados, não escritos à mão: `npx supabase gen types typescript --linked > src/types/database.ts`, regenerar após qualquer migration que mude tabela/view/função.
+
+## Sincronização com a Omie
+
+Não há job/scheduler automático ainda — cada onda é um script Node standalone, feito para rodar localmente com `SUPABASE_SERVICE_ROLE_KEY`/`OMIE_APP_KEY`/`OMIE_APP_SECRET` no `.env.local`. Ver [`docs/OPERATIONS.md`](docs/OPERATIONS.md) para o passo a passo de cada onda e para o que **não** fazer.
 
 ## Documentação e estado
 
-Comece por [`docs/00-PROJECT-MASTER.md`](docs/00-PROJECT-MASTER.md) e siga [`AGENTS.md`](AGENTS.md). Etapas 0–3 concluídas; próxima etapa: núcleo de integração Omie server-only.
+Comece por [`docs/00-PROJECT-MASTER.md`](docs/00-PROJECT-MASTER.md) e siga [`AGENTS.md`](AGENTS.md). Dados reais da Omie sincronizados e validados (clientes, vendedores, categorias, contas correntes, financeiro, DRE, comercial); frontend homologado contra esses dados. Operação recorrente documentada em [`docs/OPERATIONS.md`](docs/OPERATIONS.md).

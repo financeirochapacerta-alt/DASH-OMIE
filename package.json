@@ -14,7 +14,8 @@
     "sync:onda1": "tsx --tsconfig scripts/tsconfig.json scripts/sync-onda1.ts",
     "sync:onda2": "tsx --tsconfig scripts/tsconfig.json scripts/sync-onda2.ts",
     "sync:dre-mappings": "tsx --tsconfig scripts/tsconfig.json scripts/sync-dre-mappings.ts",
-    "sync:onda3-pedidos": "tsx --tsconfig scripts/tsconfig.json scripts/sync-onda3-pedidos.ts"
+    "sync:onda3-pedidos": "tsx --tsconfig scripts/tsconfig.json scripts/sync-onda3-pedidos.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.4",
@@ -27,6 +28,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",

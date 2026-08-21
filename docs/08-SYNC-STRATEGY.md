@@ -26,6 +26,18 @@ Recebíveis e pagáveis reutilizam a mesma orquestração, mas possuem módulos 
 
 Usar `last-modified`/cursor somente após confirmar endpoint a endpoint. Onde indisponível, usar janelas sobrepostas e upsert. Executar reconciliação periódica mais ampla para mudanças tardias, cancelamentos e lacunas. Webhooks aceleram atualização, mas não são fonte única.
 
+### Classificação por endpoint (confirmado com dados reais, Ondas 1–3, 2026-08-21)
+
+| Endpoint | Classificação | Observação |
+|---|---|---|
+| `ListarClientes`, `ListarVendedores` | INCREMENTAL NÃO CONFIRMADO | Filtro de inclusão/alteração documentado pela Omie, mas nunca exercitado — sync atual usa full listing |
+| `ListarCategorias`, `ListarContasCorrentes` | FULL/RECONCILIATION | Sem evidência de filtro incremental documentado; full listing é o único modo validado |
+| `ListarContasReceber`, `ListarContasPagar` | INCREMENTAL NÃO CONFIRMADO | Filtro de inclusão/alteração existe na documentação Omie, mas sem filtro de vencimento inequívoco; fallback atual é full listing + janela local por `data_vencimento` |
+| `ListarPedidos`, `ListarOS` | FULL/RECONCILIATION | Nenhum filtro incremental investigado; toda sincronização de Onda 3 foi full listing |
+| `ConsultarPedido`, `ConsultarOS` | Não é sync — diagnóstico pontual | Não fazem mais parte do fluxo normal (ADR-019); `infoCadastro`/`lista_parcelas`/parcelas de OS já vêm nas listagens |
+
+Nenhum endpoint tem incremental **confirmado e implementado** hoje — toda sincronização real executada até aqui foi full listing. Isso é seguro para o volume atual (435 pedidos, 1959 títulos financeiros, ~30–70 min a mais crescer) mas deve ser revisitado antes de agendar sincronização automática recorrente.
+
 ## Exclusões
 
 Não apagar por ausência em uma página. Política de tombstone/ausência depende do spike sobre exclusões reais da Omie.

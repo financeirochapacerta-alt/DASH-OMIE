@@ -5,6 +5,12 @@ out/
 coverage/
 *.tsbuildinfo
 
+# E2E artifacts
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # Environment and secrets
 .env
 .env.*
