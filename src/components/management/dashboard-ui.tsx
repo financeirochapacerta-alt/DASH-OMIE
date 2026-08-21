@@ -19,4 +19,24 @@ export function DataTable({ title, columns, rows }: { title: string; columns: st
 export function AlertList({ alerts }: { alerts: { title: string; detail: string; priority: "critical" | "warning" | "info" }[] }) {
   return <section className="panel"><div className="panel-title"><div><h2>Alertas prioritários</h2><p>Sinais determinísticos que exigem atenção</p></div></div>{alerts.length ? <div className="alert-list">{alerts.map((alert) => <article className={`alert-item ${alert.priority}`} key={alert.title}><span>{alert.priority}</span><div><strong>{alert.title}</strong><p>{alert.detail}</p></div></article>)}</div> : <EmptyState title="Nenhum alerta ativo" detail="Os sinais serão avaliados quando os analytics estiverem disponíveis." />}</section>;
 }
-export function CashAccountCards() { return <section className="panel"><div className="panel-title"><div><h2>Saldo por conta</h2><p>Somente contas selecionadas, ativas e não bloqueadas</p></div></div><EmptyState title="Nenhuma conta disponível" detail={`Saldo consolidado atual: ${formatBRL(0)}. Títulos futuros não são atribuídos a bancos sem confirmação.`} /></section>; }
+export type CashAccountRow = { description: string; balance: number; hasKnownBalanceDate: boolean };
+export function CashAccountCards({ accounts }: { accounts: CashAccountRow[] }) {
+  return (
+    <section className="panel">
+      <div className="panel-title"><div><h2>Saldo por conta</h2><p>Somente contas selecionadas, ativas e não bloqueadas</p></div></div>
+      {accounts.length ? (
+        <div className="account-card-grid">
+          {accounts.map((account) => (
+            <article className={`account-card ${account.balance < 0 ? "negative" : "positive"}`} key={account.description}>
+              <span>{account.description}</span>
+              <strong>{formatBRL(account.balance)}</strong>
+              {!account.hasKnownBalanceDate && <small>Sem data de referência confirmada na Omie</small>}
+            </article>
+          ))}
+        </div>
+      ) : (
+        <EmptyState title="Nenhuma conta disponível" detail="Nenhuma conta corrente selecionada para caixa está ativa e desbloqueada." />
+      )}
+    </section>
+  );
+}

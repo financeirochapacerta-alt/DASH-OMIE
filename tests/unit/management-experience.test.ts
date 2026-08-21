@@ -28,7 +28,7 @@ describe("management experience rules", () => {
     expect(formatInteger(1200)).toBe("1.200"); expect(formatDate("2026-08-20")).toBe("20/08/2026");
   });
   it("keeps navigation consistent with role permissions", () => {
-    expect(navigationForRole("ADMIN")).toHaveLength(7);
+    expect(navigationForRole("ADMIN")).toHaveLength(9);
     expect(navigationForRole("FINANCEIRO").map((item) => item.href)).not.toContain("/comercial");
     expect(navigationForRole("COMERCIAL").map((item) => item.href)).toEqual(["/", "/comercial", "/alertas"]);
     expect(navigationForRole("VIEWER").map((item) => item.href)).toEqual(["/"]);
