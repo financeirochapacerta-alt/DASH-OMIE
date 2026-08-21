@@ -27,8 +27,14 @@ export type Database = {
           blocked: boolean | null
           computed_balance: number | null
           description: string | null
+          effective_balance_date: string | null
+          effective_opening_balance: number | null
           inactive: boolean | null
           initial_balance: number | null
+          manual_balance_date: string | null
+          manual_balance_enabled: boolean | null
+          manual_balance_updated_at: string | null
+          manual_opening_balance: number | null
           omie_id: string | null
           selected_for_cash: boolean | null
         }
@@ -40,7 +46,12 @@ export type Database = {
           bank_account_id: number | null
           current_balance: number | null
           description: string | null
+          effective_balance_date: string | null
+          effective_opening_balance: number | null
           initial_balance: number | null
+          manual_balance_date: string | null
+          manual_balance_enabled: boolean | null
+          manual_opening_balance: number | null
           omie_id: string | null
         }
         Relationships: []
@@ -895,6 +906,10 @@ export type Database = {
           inactive: boolean
           initial_balance: number
           last_synced_at: string | null
+          manual_balance_date: string | null
+          manual_balance_enabled: boolean
+          manual_balance_updated_at: string | null
+          manual_opening_balance: number | null
           omie_id: string
           selected_for_cash: boolean
           source_payload_hash: string | null
@@ -910,6 +925,10 @@ export type Database = {
           inactive?: boolean
           initial_balance?: number
           last_synced_at?: string | null
+          manual_balance_date?: string | null
+          manual_balance_enabled?: boolean
+          manual_balance_updated_at?: string | null
+          manual_opening_balance?: number | null
           omie_id: string
           selected_for_cash?: boolean
           source_payload_hash?: string | null
@@ -925,6 +944,10 @@ export type Database = {
           inactive?: boolean
           initial_balance?: number
           last_synced_at?: string | null
+          manual_balance_date?: string | null
+          manual_balance_enabled?: boolean
+          manual_balance_updated_at?: string | null
+          manual_opening_balance?: number | null
           omie_id?: string
           selected_for_cash?: boolean
           source_payload_hash?: string | null

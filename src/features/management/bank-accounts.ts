@@ -16,6 +16,10 @@ export type BankAccountReconciliationRow = {
   balanceDate: string | null;
   initialBalance: number;
   computedBalance: number;
+  manualBalanceEnabled: boolean;
+  manualOpeningBalance: number | null;
+  manualBalanceDate: string | null;
+  manualBalanceUpdatedAt: string | null;
 };
 
 export async function listBankAccountsForReconciliation(): Promise<BankAccountReconciliationRow[]> {
@@ -33,6 +37,10 @@ export async function listBankAccountsForReconciliation(): Promise<BankAccountRe
     balanceDate: typeof row.balance_date === "string" ? row.balance_date : null,
     initialBalance: Number(row.initial_balance ?? 0),
     computedBalance: Number(row.computed_balance ?? 0),
+    manualBalanceEnabled: row.manual_balance_enabled === true,
+    manualOpeningBalance: typeof row.manual_opening_balance === "number" ? row.manual_opening_balance : row.manual_opening_balance !== null ? Number(row.manual_opening_balance) : null,
+    manualBalanceDate: typeof row.manual_balance_date === "string" ? row.manual_balance_date : null,
+    manualBalanceUpdatedAt: typeof row.manual_balance_updated_at === "string" ? row.manual_balance_updated_at : null,
   }));
 }
 
@@ -48,6 +56,50 @@ export async function updateBankAccountSelection(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("bank_accounts").update({ selected_for_cash: selected }).eq("id", id);
   if (error) throw new Error("Não foi possível atualizar a seleção da conta.");
+  revalidatePath("/configuracoes");
+  revalidatePath("/fluxo-de-caixa");
+  revalidatePath("/");
+}
+
+// manual_opening_balance/manual_balance_date/manual_balance_enabled/manual_balance_updated_at
+// are the only columns this action ever touches — same column-scoped grant pattern as
+// selected_for_cash, and the Omie sync never includes them in its upsert payload either, so a
+// resync can never overwrite a manual anchor.
+export async function updateBankAccountManualBalance(formData: FormData) {
+  await requireManagementAccess("configuration");
+  const id = Number(formData.get("bank_account_id"));
+  if (!Number.isFinite(id) || id <= 0) throw new Error("Conta corrente inválida.");
+  const enabled = formData.get("manual_balance_enabled") === "true";
+
+  if (!enabled) {
+    const supabase = await createClient();
+    const { error } = await supabase.from("bank_accounts").update({ manual_balance_enabled: false }).eq("id", id);
+    if (error) throw new Error("Não foi possível desativar o saldo manual.");
+    revalidatePath("/configuracoes");
+    revalidatePath("/fluxo-de-caixa");
+    revalidatePath("/");
+    return;
+  }
+
+  const openingRaw = formData.get("manual_opening_balance");
+  const dateRaw = formData.get("manual_balance_date");
+  const opening = typeof openingRaw === "string" ? Number(openingRaw.replace(",", ".")) : NaN;
+  const date = typeof dateRaw === "string" ? dateRaw : "";
+  if (!Number.isFinite(opening) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error("Informe saldo inicial e data-base válidos para ativar o saldo manual.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("bank_accounts")
+    .update({
+      manual_balance_enabled: true,
+      manual_opening_balance: opening,
+      manual_balance_date: date,
+      manual_balance_updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) throw new Error("Não foi possível salvar o saldo manual.");
   revalidatePath("/configuracoes");
   revalidatePath("/fluxo-de-caixa");
   revalidatePath("/");

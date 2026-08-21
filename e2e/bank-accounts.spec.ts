@@ -19,4 +19,14 @@ test.describe("Seleção de contas correntes (Configurações)", () => {
     const badge = page.getByText(/\d+ de \d+ contas consideradas/);
     await expect(badge).toBeVisible();
   });
+
+  test("ADMIN vê o controle de saldo real manual e a auditoria por conta", async ({ page }) => {
+    const creds = skipUnlessCredentials("ADMIN");
+    await login(page, creds);
+
+    await page.goto("/configuracoes");
+    await expect(page.getByText("Usar saldo real manual").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Auditoria de saldo por conta" })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "Âncora" })).toBeVisible();
+  });
 });

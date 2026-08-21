@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(20);
 
 insert into public.categories (omie_id, name) values ('stage9-revenue', 'Revenue'), ('stage9-cost', 'Cost');
 insert into public.dre_category_mappings (category_id, dre_type, dre_group, dre_account, source)
@@ -22,6 +22,19 @@ from public.bank_accounts b where b.omie_id = 'stage22-blocked';
 insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
 select 'stage22-inactive-title', b.id, current_date - 1, 150, 'RECEBIDO', true
 from public.bank_accounts b where b.omie_id = 'stage22-inactive';
+
+-- manual balance anchor: account-a keeps the Omie fallback, account-b overrides it, both
+-- selected/valid; account-c is a real, valid balance excluded only by selected_for_cash.
+insert into public.bank_accounts (omie_id, description, initial_balance, balance_date, selected_for_cash, manual_balance_enabled, manual_opening_balance, manual_balance_date)
+values ('stage23-account-a', 'Fallback Omie', 1000, null, true, false, null, null),
+       ('stage23-account-b', 'Ancora manual', 0, null, true, true, 5000, current_date - 30),
+       ('stage23-account-c', 'Nao selecionada', 99999, null, false, false, null, null);
+insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
+select 'stage23-account-a-title', b.id, current_date - 1, 200, 'RECEBIDO', true from public.bank_accounts b where b.omie_id = 'stage23-account-a';
+insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
+select 'stage23-account-b-title', b.id, current_date - 1, 300, 'RECEBIDO', true from public.bank_accounts b where b.omie_id = 'stage23-account-b';
+insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
+select 'stage23-account-c-title', b.id, current_date - 1, 500, 'RECEBIDO', true from public.bank_accounts b where b.omie_id = 'stage23-account-c';
 
 insert into public.accounts_receivable (omie_id, bank_account_id, due_date, original_value, status, is_settled)
 select 'stage10-no-balance-date-title', b.id, current_date - 3, 250, 'RECEBIDO', true
@@ -75,6 +88,15 @@ select is_empty($$select 1 from analytics.cash_account_balances where omie_id = 
 select is_empty($$select 1 from analytics.cash_account_balances where omie_id = 'stage22-inactive'$$, 'inactive account is excluded from cash balances even when selected_for_cash is true');
 select results_eq($$select computed_balance from analytics.bank_account_reconciliation where omie_id = 'stage10-unselected'$$, $$values (99999::numeric)$$, 'reconciliation view still shows an unselected account (nothing is hidden, only excluded from consolidated totals)');
 select results_eq($$select computed_balance from analytics.bank_account_reconciliation where omie_id = 'stage22-blocked'$$, $$values (300::numeric)$$, 'reconciliation view still shows a blocked account with its real computed balance');
+
+select results_eq($$select current_balance from analytics.cash_account_balances where omie_id = 'stage23-account-a'$$, $$values (1200::numeric)$$, 'manual_balance_enabled=false falls back to initial_balance from Omie (1000 + 200)');
+select results_eq($$select current_balance from analytics.cash_account_balances where omie_id = 'stage23-account-b'$$, $$values (5300::numeric)$$, 'manual_balance_enabled=true uses manual_opening_balance instead of Omie initial_balance (5000 + 300)');
+select is_empty($$select 1 from analytics.cash_account_balances where omie_id = 'stage23-account-c'$$, 'selected_for_cash=false still excludes a real balance from consolidated cash, independent of any manual override');
+select results_eq(
+  $$select cb.current_balance = (select coalesce(sum(cab.current_balance), 0) from analytics.cash_account_balances cab) from analytics.cash_current_balance cb$$,
+  $$values (true)$$,
+  'consolidated saldo atual always equals the sum of the valid, selected per-account balances'
+);
 
 select * from finish();
 rollback;
