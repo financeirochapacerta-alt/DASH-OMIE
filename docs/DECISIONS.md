@@ -89,6 +89,18 @@
 - Decisão: a DRE inicial usa vencimento, `signed_value` e mappings configuráveis, mantendo `unmapped` auditável. Caixa separa posição atual por contas selecionadas, realizado quitado e projeção de abertos; vencidos são reposicionados somente na projeção. Limite mínimo e horizonte são configurações únicas.
 - Motivo: entregar gestão reproduzível sem alegar competência contábil ou data de baixa ainda não confirmadas, preservando sinal e datas originais.
 
+## ADR-017 — Saldo de caixa sem data de referência conhecida
+
+- Status: aceito — 2026-08-21
+- Decisão: em `analytics.cash_account_balances`, quando `bank_accounts.balance_date` é `null`, contar todos os movimentos quitados e não cancelados da conta (sem filtrar por `due_date >= balance_date`), em vez de retornar 0.
+- Motivo: validação com dados reais da Onda 2 mostrou contas sem `saldo_data` na Omie (ex.: Caixinha, Adiantamento de Cliente) tendo 100% dos seus movimentos quitados reais (R$ 36.385,79 líquidos, 156 títulos) silenciosamente descartados pelo filtro `due_date >= balance_date`, que avalia para `null` quando `balance_date` é `null`. Isso fazia o saldo aparecer como 0 — indistinguível de "sem atividade" — quando na verdade era "referência desconhecida". Corrigido em `20260821150000_fix_cash_balance_null_reference_date.sql`.
+
+## ADR-018 — Classificação DRE automática a partir do `dadosDRE` da Omie
+
+- Status: aceito — 2026-08-21
+- Decisão: `dre_category_mappings` é populada automaticamente (`source = 'omie'`) a partir de `categories.codigo_dre`/`categories.dre_metadata`, usando apenas os campos confirmados com dados reais (`codigoDRE`, `descricaoDRE`, `sinalDRE`). `dre_type`/`dre_group` são os segmentos do próprio `codigoDRE` (a Omie não nomeia esses níveis); `dre_account` é o `descricaoDRE` da Omie. `sinalDRE` é preservado em `sign_behavior` como metadado, nunca usado para recalcular `signed_value`. Categoria sem `codigoDRE`, sem `descricaoDRE`, ou com código fora do formato de 3 segmentos confirmado, permanece `unmapped` — nada é inferido por nome de categoria. A sincronização (`npm run sync:dre-mappings`) é idempotente e nunca lê/sobrescreve uma linha `source = 'manual'`; `analytics.dre_details` prioriza explicitamente `manual` sobre `omie` quando ambos existem para a mesma categoria (`20260821160000_dre_manual_override_priority.sql`).
+- Motivo: evidência real (Onda 2, 143 categorias, 80 com `codigoDRE`) mostrou 100% da DRE aparecendo como `unmapped`; a própria Omie já fornece classificação estruturada suficiente para eliminar isso sem inventar hierarquia nem tocar no sinal financeiro. Validado: total assinado de julho/2026 idêntico antes e depois (R$ 43.634,35).
+
 ## ADR-016 — Shell gerencial server-first e visualização única
 
 - Status: aceito — 2026-08-20

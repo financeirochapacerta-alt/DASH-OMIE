@@ -68,7 +68,7 @@ select due_date as movement_date,
 from analytics.financial_movements where is_settled and not is_cancelled group by due_date;
 
 create view analytics.cash_realized_monthly with (security_invoker = true) as
-select date_trunc('month', movement_date)::date month, sum(inflows) inflows, sum(outflows) outflows, sum(net_flow) net_flow
+select date_trunc('month', movement_date)::date as month_start, sum(inflows) inflows, sum(outflows) outflows, sum(net_flow) net_flow
 from analytics.cash_realized_daily group by date_trunc('month', movement_date)::date;
 
 create view analytics.cash_projection_movements with (security_invoker = true) as
@@ -110,7 +110,7 @@ select min(projection_date) filter (where closing_balance < 0) first_negative_ca
 from analytics.cash_projection_daily cross join settings group by settings.minimum_cash;
 
 create view analytics.cash_projection_monthly with (security_invoker = true) as
-select date_trunc('month', projection_date)::date month,
+select date_trunc('month', projection_date)::date as month_start,
   sum(inflows) inflows, sum(outflows) outflows, sum(net_flow) net_flow,
   (array_agg(closing_balance order by projection_date desc))[1] closing_balance
 from analytics.cash_projection_daily
